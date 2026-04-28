@@ -1,0 +1,20 @@
+NOTICE
+======
+
+Markdown Book
+Copyright (c) 2026 Bigov
+
+This product includes software developed by the Markdown Book project and
+is distributed under the MIT License. See the LICENSE file for details.
+
+-------------------------------------------------------------------------------
+
+Third-party components
+----------------------
+
+### wxWidgets Library
+
+The wxWindows Library Licence is essentially the L-GPL (Library General Public Licence), with an exception stating that derived works in binary form may be distributed on the user’s own terms. This is a solution that satisfies those who wish to produce GPL’ed software using wxWidgets, and also those producing proprietary software.
+  
+  - https://github.com/wxWidgets/wxWidgets/blob/master/docs/licence.txt
+  - https://wxwidgets.org/about/licence/
