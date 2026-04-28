@@ -2,28 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Запустить",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/mdbook.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "console": "externalTerminal"
-        },
-        {
-            "name": "(gdb) Запустить",
+            "name": "Debug mdbook",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/mdbook.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: build mdbook",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/path/to/gdb",
+            "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
             "setupCommands": [
                 {
                     "description": "Включить автоматическое форматирование для gdb",
@@ -36,17 +26,6 @@
                     "ignoreFailures": true
                 }
             ]
-        },
-        {
-            "name": "(Windows) Запустить",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/mdbook.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "console": "externalTerminal"
         }
     ]
 }

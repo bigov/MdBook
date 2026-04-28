@@ -51,7 +51,9 @@ FetchContent_MakeAvailable(wxWidgets)
 # Сборка приложения
 configure_file(resources/app.rc.in ${CMAKE_BINARY_DIR}/app.rc COPYONLY)
 configure_file(resources/icon.png ${CMAKE_BINARY_DIR}/icon.png COPYONLY)
-set(SOURCE "src/main.cpp" "src/app_frame.cpp" "src/app_menu.cpp" "${CMAKE_BINARY_DIR}/app.rc")
+
+set(SOURCE "samples/text/text.cpp" "${CMAKE_BINARY_DIR}/app.rc")
+#set(SOURCE "src/main.cpp" "src/app_frame.cpp" "src/app_menu.cpp" "${CMAKE_BINARY_DIR}/app.rc")
 add_executable(${MyAPP} ${SOURCE})
 
 # Путь к заголовкам wxWidgets нужен windres при компиляции app.rc (для wx/msw/wx.rc)

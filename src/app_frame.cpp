@@ -38,9 +38,9 @@ void AppFrame::SetAppMenuBar(void)
     wxMenuBar* menuBar = new AppMenu();
     SetMenuBar(menuBar);
 
-    Bind(wxEVT_MENU, &AppFrame::OnHello, this, app_menu_ids::ID_Hello);
-    Bind(wxEVT_MENU, &AppFrame::OnAbout, this, wxID_ABOUT);
-    Bind(wxEVT_MENU, &AppFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &OnHello, this, app_menu_ids::ID_Hello);
+    Bind(wxEVT_MENU, &OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_MENU, &OnExit, this, wxID_EXIT);
 }
 
 void AppFrame::SetupAppStatusBar(void)
