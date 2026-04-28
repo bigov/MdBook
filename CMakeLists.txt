@@ -35,11 +35,22 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWXUSINGDLL -D__WXMSW__ -mwindows -Wl,-
 
 # Базовая библиотека
 include(FetchContent)
-FetchContent_Declare(
-        wxWidgets
-        GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
-        GIT_TAG v3.3.2
-)
+set(WXWIDGETS_LOCAL_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/wxwidgets-src")
+if(EXISTS "${WXWIDGETS_LOCAL_SOURCE_DIR}/CMakeLists.txt")
+    message(STATUS "Using local wxWidgets source: ${WXWIDGETS_LOCAL_SOURCE_DIR}")
+    # Avoid network/git for local rebuilds when source is already populated.
+    set(FETCHCONTENT_FULLY_DISCONNECTED ON)
+    FetchContent_Declare(
+      wxWidgets
+      SOURCE_DIR "${WXWIDGETS_LOCAL_SOURCE_DIR}"
+    )
+else()
+    FetchContent_Declare(
+      wxWidgets
+      GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
+      GIT_TAG v3.3.2
+    )
+endif()
 set(wxUSE_WEBVIEW "OFF")
 #set(wxWidgets_USE_STATIC 1)
 set(wxBUILD_SHARED "ON")
@@ -52,7 +63,7 @@ FetchContent_MakeAvailable(wxWidgets)
 configure_file(resources/app.rc.in ${CMAKE_BINARY_DIR}/app.rc COPYONLY)
 configure_file(resources/icon.png ${CMAKE_BINARY_DIR}/icon.png COPYONLY)
 
-set(SOURCE "src/main.cpp" "${CMAKE_BINARY_DIR}/app.rc")
+set(SOURCE "src/main.cpp" "src/app_frame.cpp" "${CMAKE_BINARY_DIR}/app.rc")
 add_executable(${MyAPP} ${SOURCE})
 
 # Путь к заголовкам wxWidgets нужен windres при компиляции app.rc (для wx/msw/wx.rc)
