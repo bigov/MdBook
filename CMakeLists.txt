@@ -41,22 +41,34 @@ FetchContent_Declare(
         GIT_TAG v3.3.2
 )
 set(wxUSE_WEBVIEW "OFF")
-set(wxWidgets_USE_STATIC 1)
+#set(wxWidgets_USE_STATIC 1)
+set(wxBUILD_SHARED "ON")
+set(wxBUILD_MONOLITHIC "ON")
+
 FetchContent_GetProperties(wxWidgets)
 FetchContent_MakeAvailable(wxWidgets)
 
 # Сборка приложения
-set(SOURCE "src/main.cpp")
+configure_file(resources/app.rc.in ${CMAKE_BINARY_DIR}/app.rc COPYONLY)
+configure_file(resources/icon.png ${CMAKE_BINARY_DIR}/icon.png COPYONLY)
+set(SOURCE "src/main.cpp" "src/app_frame.cpp" "src/app_menu.cpp" "${CMAKE_BINARY_DIR}/app.rc")
 add_executable(${MyAPP} ${SOURCE})
+
+# Путь к заголовкам wxWidgets нужен windres при компиляции app.rc (для wx/msw/wx.rc)
+set_source_files_properties("${CMAKE_BINARY_DIR}/app.rc" PROPERTIES
+    COMPILE_FLAGS "-I${wxwidgets_SOURCE_DIR}/include"
+)
  
 #target_link_libraries(${MyAPP} PRIVATE ${wxWidgets_LIBRARIES})
 target_link_libraries(${MyAPP} PRIVATE wxWidgets::wxWidgets)
 
-# Добавление .dll, необходимых для запуска приложения
+# Добавление .dll библиотеки в каталог запуска
 SET(BIN_LIB "${CMAKE_BINARY_DIR}/_deps/wxwidgets-build/lib/gcc_x64_dll")
 add_custom_command( TARGET "${MyAPP}" POST_BUILD
   COMMAND ${CMAKE_COMMAND}
-    -E copy "${BIN_LIB}/wxbase332ud_gcc_x64_custom.dll" "${CMAKE_BINARY_DIR}/"
+    -E copy "${BIN_LIB}/wxmsw332ud_gcc_x64_custom.dll" "${CMAKE_BINARY_DIR}/"
   COMMAND ${CMAKE_COMMAND}
-    -E copy "${BIN_LIB}/wxmsw332ud_core_gcc_x64_custom.dll" "${CMAKE_BINARY_DIR}/"
+    -E make_directory "${CMAKE_BINARY_DIR}/assets"
+  COMMAND ${CMAKE_COMMAND}
+    -E copy "${CMAKE_SOURCE_DIR}/resources/icon.png" "${CMAKE_BINARY_DIR}/assets/"
 )
