@@ -6,10 +6,6 @@
 #include <wx/icon.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
-#include <wx/colordlg.h>
-#include <wx/fontdlg.h>
-#include <wx/numdlg.h>
-#include <wx/tokenzr.h>
 #include <wx/frame.h>
 #include <wx/string.h>
 
@@ -54,16 +50,6 @@ public:
     void SetAppIcon(const wxString& iconPath);
     void OnClose(wxCommandEvent& event);
     void OnIdle(wxIdleEvent& event);
-    void OnLeftAlign(wxCommandEvent& event);
-    void OnRightAlign(wxCommandEvent& event);
-    void OnJustify(wxCommandEvent& event);
-    void OnCentre(wxCommandEvent& event);
-    void OnChangeFont(wxCommandEvent& event);
-    void OnChangeTextColour(wxCommandEvent& event);
-    void OnChangeBackgroundColour(wxCommandEvent& event);
-    void OnLeftIndent(wxCommandEvent& event);
-    void OnRightIndent(wxCommandEvent& event);
-    void OnTabStops(wxCommandEvent& event);
 
 private:
     TxtCtl* txt_ctl;
