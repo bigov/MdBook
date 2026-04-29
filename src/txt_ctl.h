@@ -1,19 +1,35 @@
-#include <wx/string.h>
-#include <wx/frame.h>
-#include <wx/textctrl.h>
-#include <wx/fontdlg.h>
+#pragma once
+
+#include <wx/menu.h>
+#include <wx/richtext/richtextctrl.h>
 #include <wx/colordlg.h>
 #include <wx/fontdlg.h>
-#include <wx/numdlg.h>
-#include <wx/event.h>
-#include <wx/textdlg.h> 
+#include <wx/textdlg.h>
 #include <wx/tokenzr.h>
 
+enum
+{
+    RICHTEXT_LEFT_ALIGN = 1100,
+    RICHTEXT_RIGHT_ALIGN,
+    RICHTEXT_CENTRE,
+    RICHTEXT_JUSTIFY,
+    RICHTEXT_CHANGE_FONT,
+    RICHTEXT_CHANGE_TEXT_COLOUR,
+    RICHTEXT_CHANGE_BACKGROUND_COLOUR,
+    RICHTEXT_LEFT_INDENT,
+    RICHTEXT_RIGHT_INDENT,
+    RICHTEXT_TAB_STOPS
+};
 
-class TxtCtl: public wxTextCtrl
+//class wxCommandEvent;
+
+class TxtCtl: public wxRichTextCtrl
 {
 public:
     TxtCtl(wxWindow* parent);
+    wxMenu* EditMenu();
+
+private:
     void OnChangeFont(wxCommandEvent& WXUNUSED(event));
     void OnLeftAlign(wxCommandEvent& event);
     void OnRightAlign(wxCommandEvent& event);
@@ -24,7 +40,4 @@ public:
     void OnLeftIndent(wxCommandEvent& event);
     void OnRightIndent(wxCommandEvent& event);
     void OnTabStops(wxCommandEvent& event);
-
-private:
-	void Init();
 };

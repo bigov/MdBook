@@ -1,18 +1,68 @@
 #include "txt_ctl.h"
 
-TxtCtl::TxtCtl(wxWindow* parent)
-    : wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_RICH2)
-{
-    Init();
-}
 
-void TxtCtl::Init()
+TxtCtl::TxtCtl(wxWindow* parent)
+    : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRE_MULTILINE)
 {
     wxString init_string;
     init_string << "\n title \n";
     init_string << "Some text with some style\n";
     SetValue(init_string);
 }
+
+
+wxMenu* TxtCtl::EditMenu()
+{
+    wxWindow* topLevel = wxGetTopLevelParent(this);
+    wxMenu* editMenu = new wxMenu;
+    
+    editMenu->Append(RICHTEXT_LEFT_ALIGN, _("Left Align"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnLeftAlign(event); }, RICHTEXT_LEFT_ALIGN);
+    
+    editMenu->Append(RICHTEXT_RIGHT_ALIGN, _("Right Align"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnRightAlign(event); }, RICHTEXT_RIGHT_ALIGN);
+    
+    editMenu->Append(RICHTEXT_CENTRE, _("Centre"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnCentre(event); }, RICHTEXT_CENTRE);
+    
+    editMenu->Append(RICHTEXT_JUSTIFY, _("Justify"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnJustify(event); }, RICHTEXT_JUSTIFY);
+    
+    editMenu->AppendSeparator();
+    
+    editMenu->Append(RICHTEXT_CHANGE_FONT, _("Change Font"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnChangeFont(event); }, RICHTEXT_CHANGE_FONT);
+    
+    editMenu->Append(RICHTEXT_CHANGE_TEXT_COLOUR, _("Change Text Colour"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnChangeTextColour(event); }, RICHTEXT_CHANGE_TEXT_COLOUR);
+    
+    editMenu->Append(RICHTEXT_CHANGE_BACKGROUND_COLOUR, _("Change Background Colour"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnChangeBackgroundColour(event); }, RICHTEXT_CHANGE_BACKGROUND_COLOUR);
+    
+    editMenu->AppendSeparator();
+    
+    editMenu->Append(RICHTEXT_LEFT_INDENT, _("Left Indent"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnLeftIndent(event); }, RICHTEXT_LEFT_INDENT);
+
+    editMenu->Append(RICHTEXT_RIGHT_INDENT, _("Right Indent"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnRightIndent(event); }, RICHTEXT_RIGHT_INDENT);
+
+    editMenu->Append(RICHTEXT_TAB_STOPS, _("Tab Stops"));
+    if (topLevel)
+        topLevel->Bind(wxEVT_MENU, [this](wxCommandEvent& event){ OnTabStops(event); }, RICHTEXT_TAB_STOPS);
+
+    return editMenu;
+}
+
 
 void TxtCtl::OnChangeFont(wxCommandEvent& WXUNUSED(event))
 {
@@ -30,8 +80,6 @@ void TxtCtl::OnChangeFont(wxCommandEvent& WXUNUSED(event))
         long start, end;
         GetSelection(& start, & end);
         SetStyle(start, end, attr);
-
-        //m_currentPosition = -1;
     }
 }
 
@@ -43,8 +91,6 @@ void TxtCtl::OnLeftAlign(wxCommandEvent& WXUNUSED(event))
     long start, end;
     GetSelection(& start, & end);
     SetStyle(start, end, attr);
-
-   //m_currentPosition = -1;
 }
 
 void TxtCtl::OnRightAlign(wxCommandEvent& WXUNUSED(event))
@@ -55,8 +101,6 @@ void TxtCtl::OnRightAlign(wxCommandEvent& WXUNUSED(event))
     long start, end;
     GetSelection(& start, & end);
     SetStyle(start, end, attr);
-
-    //m_currentPosition = -1;
 }
 
 void TxtCtl::OnJustify(wxCommandEvent& WXUNUSED(event))
@@ -67,8 +111,6 @@ void TxtCtl::OnJustify(wxCommandEvent& WXUNUSED(event))
     long start, end;
     GetSelection(& start, & end);
     SetStyle(start, end, attr);
-
-    //m_currentPosition = -1;
 }
 
 void TxtCtl::OnCentre(wxCommandEvent& WXUNUSED(event))
@@ -79,8 +121,6 @@ void TxtCtl::OnCentre(wxCommandEvent& WXUNUSED(event))
     long start, end;
     GetSelection(& start, & end);
     SetStyle(start, end, attr);
-
-    //m_currentPosition = -1;
 }
 
 
@@ -108,8 +148,6 @@ void TxtCtl::OnChangeTextColour(wxCommandEvent& WXUNUSED(event))
         long start, end;
         GetSelection(& start, & end);
         SetStyle(start, end, attr);
-
-        //m_currentPosition = -1;
     }
 }
 
@@ -137,8 +175,6 @@ void TxtCtl::OnChangeBackgroundColour(wxCommandEvent& WXUNUSED(event))
         long start, end;
         GetSelection(& start, & end);
         SetStyle(start, end, attr);
-
-        //m_currentPosition = -1;
     }
 }
 
@@ -161,8 +197,6 @@ void TxtCtl::OnLeftIndent(wxCommandEvent& WXUNUSED(event))
         long start, end;
         GetSelection(& start, & end);
         SetStyle(start, end, attr);
-
-        //m_currentPosition = -1;
     }
 }
 
@@ -185,8 +219,6 @@ void TxtCtl::OnRightIndent(wxCommandEvent& WXUNUSED(event))
         long start, end;
         GetSelection(& start, & end);
         SetStyle(start, end, attr);
-
-        //m_currentPosition = -1;
     }
 }
 
@@ -215,7 +247,5 @@ void TxtCtl::OnTabStops(wxCommandEvent& WXUNUSED(event))
     long start, end;
     GetSelection(& start, & end);
     SetStyle(start, end, attr);
-
-    //m_currentPosition = -1;
 }
 
