@@ -59,19 +59,18 @@ set(wxBUILD_MONOLITHIC "ON")
 FetchContent_GetProperties(wxWidgets)
 FetchContent_MakeAvailable(wxWidgets)
 
-# Сборка приложения
 configure_file(resources/app.rc.in ${CMAKE_BINARY_DIR}/app.rc COPYONLY)
-configure_file(resources/icon.png ${CMAKE_BINARY_DIR}/icon.png COPYONLY)
-
-set(SOURCE "src/main.cpp" "src/app_frame.cpp" "${CMAKE_BINARY_DIR}/app.rc")
-add_executable(${MyAPP} ${SOURCE})
-
-# Путь к заголовкам wxWidgets нужен windres при компиляции app.rc (для wx/msw/wx.rc)
 set_source_files_properties("${CMAKE_BINARY_DIR}/app.rc" PROPERTIES
     COMPILE_FLAGS "-I${wxwidgets_SOURCE_DIR}/include"
 )
- 
-#target_link_libraries(${MyAPP} PRIVATE ${wxWidgets_LIBRARIES})
+
+set(SOURCE "${CMAKE_BINARY_DIR}/app.rc"
+	"src/main.cpp"
+	"src/app_frame.cpp"
+	)
+
+# Сборка приложения
+add_executable(${MyAPP} ${SOURCE})
 target_link_libraries(${MyAPP} PRIVATE wxWidgets::wxWidgets)
 
 # Добавление .dll библиотеки в каталог запуска

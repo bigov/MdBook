@@ -1,36 +1,3 @@
-// For compilers that support precompilation, includes "wx/wx.h".
-#include "wx/wxprec.h"
-
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
-
-#if wxUSE_CLIPBOARD
-    #include "wx/dataobj.h"
-    #include "wx/clipbrd.h"
-#endif
-
-#if wxUSE_FILE
-    #include "wx/file.h"
-#endif
-
-#if wxUSE_TOOLTIPS
-    #include "wx/tooltip.h"
-#endif
-
-// We test for wxUSE_DRAG_AND_DROP also, because data objects may not be
-// implemented for compilers that can't cope with the OLE parts in
-// wxUSE_DRAG_AND_DROP.
-#if !wxUSE_DRAG_AND_DROP
-    #undef wxUSE_CLIPBOARD
-    #define wxUSE_CLIPBOARD 0
-#endif
-
-#include "wx/colordlg.h"
-#include "wx/fontdlg.h"
-#include "wx/numdlg.h"
-#include "wx/tokenzr.h"
-
 #include "app_frame.h"
 
 enum
@@ -66,6 +33,12 @@ wxEND_EVENT_TABLE()
 AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(x, y), wxSize(w, h))
 {
+    wxInitAllImageHandlers();
+    
+    const wxString iconPath = wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPathWithSep() 
+        + "assets" + wxFileName::GetPathSeparator() + "icon.png";
+    SetAppIcon(iconPath);
+
     m_currentPosition = -1;
     m_textCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
             wxDefaultSize, wxTE_MULTILINE|wxTE_RICH2);
@@ -99,6 +72,20 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
 #if wxUSE_STATUSBAR
     CreateStatusBar();
 #endif // wxUSE_STATUSBAR
+}
+
+void AppFrame::SetAppIcon(const wxString& iconPath)
+{
+    // Set the application icon
+    if (wxFileExists(iconPath))
+    {
+        wxIcon appIcon;
+        appIcon.CopyFromBitmap(wxBitmap(iconPath, wxBITMAP_TYPE_PNG));
+        if (appIcon.IsOk())
+        {
+            SetIcon(appIcon);
+        }
+    }
 }
 
 void AppFrame::OnClose(wxCommandEvent& WXUNUSED(event))
