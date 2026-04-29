@@ -65,9 +65,12 @@ set_source_files_properties("${CMAKE_BINARY_DIR}/app.rc" PROPERTIES
 )
 
 set(SOURCE "${CMAKE_BINARY_DIR}/app.rc"
-	"src/main.cpp"
-	"src/app_frame.cpp"
-	)
+   "src/main.cpp"
+   "src/app_frame.h"
+   "src/app_frame.cpp"
+   "src/txt_ctl.h"
+   "src/txt_ctl.cpp"
+)
 
 # Сборка приложения
 add_executable(${MyAPP} ${SOURCE})

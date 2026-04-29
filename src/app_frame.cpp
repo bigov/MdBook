@@ -30,23 +30,20 @@ wxBEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(RICHTEXT_TAB_STOPS, AppFrame::OnTabStops)
 wxEND_EVENT_TABLE()
 
+static const wxString ASSETS_DIR = "assets";
+static const wxString APP_ICON_FNAME = "icon.png";
+
 AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(x, y), wxSize(w, h))
 {
     wxInitAllImageHandlers();
     
     const wxString iconPath = wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPathWithSep() 
-        + "assets" + wxFileName::GetPathSeparator() + "icon.png";
+        + ASSETS_DIR + wxFileName::GetPathSeparator() + APP_ICON_FNAME;
     SetAppIcon(iconPath);
 
+    txt_ctl = new TxtCtl(this);
     m_currentPosition = -1;
-    m_textCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
-            wxDefaultSize, wxTE_MULTILINE|wxTE_RICH2);
-
-    wxString value;
-    value << "Hello, welcome to a very simple rich text editor. You can set some character and paragraph styles from the Edit menu. ";
-    value << "\n\n";
-    m_textCtrl->SetValue(value);
 
     wxMenuBar* menuBar = new wxMenuBar;
     wxMenu* fileMenu = new wxMenu;
@@ -99,8 +96,8 @@ void AppFrame::OnLeftAlign(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
 
     long start, end;
-    m_textCtrl->GetSelection(& start, & end);
-    m_textCtrl->SetStyle(start, end, attr);
+    txt_ctl->GetSelection(& start, & end);
+    txt_ctl->SetStyle(start, end, attr);
 
     m_currentPosition = -1;
 }
@@ -111,8 +108,8 @@ void AppFrame::OnRightAlign(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_RIGHT);
 
     long start, end;
-    m_textCtrl->GetSelection(& start, & end);
-    m_textCtrl->SetStyle(start, end, attr);
+    txt_ctl->GetSelection(& start, & end);
+    txt_ctl->SetStyle(start, end, attr);
 
     m_currentPosition = -1;
 }
@@ -123,8 +120,8 @@ void AppFrame::OnJustify(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_JUSTIFIED);
 
     long start, end;
-    m_textCtrl->GetSelection(& start, & end);
-    m_textCtrl->SetStyle(start, end, attr);
+    txt_ctl->GetSelection(& start, & end);
+    txt_ctl->SetStyle(start, end, attr);
 
     m_currentPosition = -1;
 }
@@ -135,8 +132,8 @@ void AppFrame::OnCentre(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_CENTRE);
 
     long start, end;
-    m_textCtrl->GetSelection(& start, & end);
-    m_textCtrl->SetStyle(start, end, attr);
+    txt_ctl->GetSelection(& start, & end);
+    txt_ctl->SetStyle(start, end, attr);
 
     m_currentPosition = -1;
 }
@@ -156,8 +153,8 @@ void AppFrame::OnChangeFont(wxCommandEvent& WXUNUSED(event))
         attr.SetFont(font);
 
         long start, end;
-        m_textCtrl->GetSelection(& start, & end);
-        m_textCtrl->SetStyle(start, end, attr);
+        txt_ctl->GetSelection(& start, & end);
+        txt_ctl->SetStyle(start, end, attr);
 
         m_currentPosition = -1;
     }
@@ -185,8 +182,8 @@ void AppFrame::OnChangeTextColour(wxCommandEvent& WXUNUSED(event))
         attr.SetTextColour(col);
 
         long start, end;
-        m_textCtrl->GetSelection(& start, & end);
-        m_textCtrl->SetStyle(start, end, attr);
+        txt_ctl->GetSelection(& start, & end);
+        txt_ctl->SetStyle(start, end, attr);
 
         m_currentPosition = -1;
     }
@@ -214,8 +211,8 @@ void AppFrame::OnChangeBackgroundColour(wxCommandEvent& WXUNUSED(event))
         attr.SetBackgroundColour(col);
 
         long start, end;
-        m_textCtrl->GetSelection(& start, & end);
-        m_textCtrl->SetStyle(start, end, attr);
+        txt_ctl->GetSelection(& start, & end);
+        txt_ctl->SetStyle(start, end, attr);
 
         m_currentPosition = -1;
     }
@@ -238,8 +235,8 @@ void AppFrame::OnLeftIndent(wxCommandEvent& WXUNUSED(event))
         attr.SetLeftIndent(indent);
 
         long start, end;
-        m_textCtrl->GetSelection(& start, & end);
-        m_textCtrl->SetStyle(start, end, attr);
+        txt_ctl->GetSelection(& start, & end);
+        txt_ctl->SetStyle(start, end, attr);
 
         m_currentPosition = -1;
     }
@@ -262,8 +259,8 @@ void AppFrame::OnRightIndent(wxCommandEvent& WXUNUSED(event))
         attr.SetRightIndent(indent);
 
         long start, end;
-        m_textCtrl->GetSelection(& start, & end);
-        m_textCtrl->SetStyle(start, end, attr);
+        txt_ctl->GetSelection(& start, & end);
+        txt_ctl->SetStyle(start, end, attr);
 
         m_currentPosition = -1;
     }
@@ -292,20 +289,20 @@ void AppFrame::OnTabStops(wxCommandEvent& WXUNUSED(event))
     attr.SetTabs(tabs);
 
     long start, end;
-    m_textCtrl->GetSelection(& start, & end);
-    m_textCtrl->SetStyle(start, end, attr);
+    txt_ctl->GetSelection(& start, & end);
+    txt_ctl->SetStyle(start, end, attr);
 
     m_currentPosition = -1;
 }
 
 void AppFrame::OnIdle(wxIdleEvent& WXUNUSED(event))
 {
-    long insertionPoint = m_textCtrl->GetInsertionPoint();
+    long insertionPoint = txt_ctl->GetInsertionPoint();
     if (insertionPoint != m_currentPosition)
     {
 #if wxUSE_STATUSBAR
         wxTextAttr attr;
-        if (m_textCtrl->GetStyle(insertionPoint, attr))
+        if (txt_ctl->GetStyle(insertionPoint, attr))
         {
             wxString msg;
             wxString facename("unknown");

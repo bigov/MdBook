@@ -40,6 +40,7 @@
     #define wxUSE_CLIPBOARD 0
 #endif
 
+#include "txt_ctl.h"
 
 class wxCommandEvent;
 class wxIdleEvent;
@@ -65,7 +66,7 @@ public:
     void OnTabStops(wxCommandEvent& event);
 
 private:
-    wxTextCtrl* m_textCtrl;
+    TxtCtl* txt_ctl;
     long m_currentPosition;
 
     wxDECLARE_EVENT_TABLE();
