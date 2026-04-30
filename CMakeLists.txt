@@ -47,8 +47,8 @@ if(EXISTS "${WXWIDGETS_LOCAL_SOURCE_DIR}/CMakeLists.txt")
 else()
     FetchContent_Declare(
       wxWidgets
-      GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
-      GIT_TAG v3.3.2
+      GIT_REPOSITORY "https://github.com/wxWidgets/wxWidgets.git"
+      GIT_TAG "v3.3.2"
     )
 endif()
 set(wxUSE_WEBVIEW "OFF")
@@ -58,6 +58,26 @@ set(wxBUILD_MONOLITHIC "ON")
 
 FetchContent_GetProperties(wxWidgets)
 FetchContent_MakeAvailable(wxWidgets)
+
+# Allow FetchContent to download cmark on first configure.
+set(FETCHCONTENT_FULLY_DISCONNECTED OFF)
+
+set(CMARK_LOCAL_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/cmark-src")
+if(EXISTS "${CMARK_LOCAL_SOURCE_DIR}/CMakeLists.txt")
+    message(STATUS "Using local cmark source: ${CMARK_LOCAL_SOURCE_DIR}")
+    FetchContent_Declare(
+      cmark
+      SOURCE_DIR "${CMARK_LOCAL_SOURCE_DIR}"
+    )
+else()
+    FetchContent_Declare(
+      cmark
+      GIT_REPOSITORY "https://github.com/commonmark/cmark.git"
+      GIT_TAG "0.31.2"
+    )
+endif()
+FetchContent_GetProperties(cmark)
+FetchContent_MakeAvailable(cmark)
 
 configure_file(resources/app.rc.in ${CMAKE_BINARY_DIR}/app.rc COPYONLY)
 set_source_files_properties("${CMAKE_BINARY_DIR}/app.rc" PROPERTIES
@@ -70,11 +90,13 @@ set(SOURCE "${CMAKE_BINARY_DIR}/app.rc"
    "src/app_frame.cpp"
    "src/txt_ctl.h"
    "src/txt_ctl.cpp"
+   "src/md_parser.h"
+    "src/md_parser.cpp"
 )
 
 # Сборка приложения
 add_executable(${MyAPP} ${SOURCE})
-target_link_libraries(${MyAPP} PRIVATE wxWidgets::wxWidgets)
+target_link_libraries(${MyAPP} PRIVATE wxWidgets::wxWidgets cmark)
 
 # Добавление .dll библиотеки в каталог запуска
 SET(BIN_LIB "${CMAKE_BINARY_DIR}/_deps/wxwidgets-build/lib/gcc_x64_dll")

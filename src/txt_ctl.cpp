@@ -1,5 +1,12 @@
 #include "txt_ctl.h"
 
+#include <wx/menu.h>
+#include <wx/richtext/richtextxml.h>
+#include <wx/colordlg.h>
+#include <wx/fontdlg.h>
+#include <wx/textdlg.h>
+#include <wx/tokenzr.h>
+
 
 TxtCtl::TxtCtl(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRE_MULTILINE)

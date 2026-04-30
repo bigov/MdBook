@@ -1,14 +1,31 @@
 #include "app_frame.h"
-#include <wx/sstream.h>
-#include <wx/msgdlg.h>
+#include "wx/sstream.h"
+#include <wx/filedlg.h>
+#include <wx/filename.h>
+#include <wx/wfstream.h>
+#include <wx/log.h>
+#include <wx/filefn.h>
+#include <wx/icon.h>
+#include <wx/image.h>
+#include <wx/menu.h>
+#include <wx/stdpaths.h>
 
-namespace
-{
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <cmark.h>
+
+#include "md_parser.h"
+
+static const int APP_CLOSE = 1000;
+static const wxString ASSETS_DIR = "assets";
+static const wxString APP_ICON_FNAME = "icon.png";
 static const wxString RICH_BUFFER_EXT = "wxrt";
 static const wxString TEXT_BUFFER_EXT = "txt";
+static const wxString MARKDOWN_BUFFER_EXT = "md";
 static const wxString FILE_DIALOG_WILDCARD = "Plain text files (*.txt)|*.txt|Rich text XML (*.wxrt)|*.wxrt";
 
-}
 
 AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(x, y), wxSize(w, h))
@@ -59,6 +76,23 @@ void AppFrame::SetAppIcon(const wxString& iconPath)
     }
 }
 
+void AppFrame::FileLoadMd(const wxString filePath)
+{
+    std::ifstream fin(filePath.ToStdString());
+    if (!fin) { std::cerr << "Cannot open input file\n"; return; }
+    std::string md((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
+
+    cmark_node *doc = cmark_parse_document(md.c_str(), md.size(), CMARK_OPT_DEFAULT);
+    if (!doc) { std::cerr << "Parse error\n"; return; }
+
+    std::ostringstream oss;
+    process_node(doc, oss);
+    cmark_node_free(doc);
+
+    txt_ctl->SetValue(wxString::FromUTF8(oss.str()));
+}
+
+
 // --- Load the file content as rich text ---
 void AppFrame::FileLoadXml(const wxString filePath)
 {
@@ -88,6 +122,12 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
     if(fileExt == RICH_BUFFER_EXT)
     {
         FileLoadXml(filepath);
+        return;
+    }
+
+    if(fileExt == MARKDOWN_BUFFER_EXT)
+    {
+        FileLoadMd(filepath);
         return;
     }
 

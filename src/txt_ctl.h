@@ -1,13 +1,8 @@
 #pragma once
 
-#include <wx/menu.h>
 #include <wx/richtext/richtextctrl.h>
-#include <wx/richtext/richtextxml.h>
-#include <wx/colordlg.h>
-#include <wx/fontdlg.h>
-#include <wx/textdlg.h>
-#include <wx/tokenzr.h>
-
+class wxMenu;
+class wxCommandEvent;
 
 enum
 {
@@ -22,8 +17,6 @@ enum
     RICHTEXT_RIGHT_INDENT,
     RICHTEXT_TAB_STOPS
 };
-
-//class wxCommandEvent;
 
 class TxtCtl: public wxRichTextCtrl
 {

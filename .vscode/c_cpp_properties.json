@@ -1,25 +1,25 @@
 {
-  "version": 4,
-  "configurations": [
-    {
-      "name": "Win32-UCRT64",
-      "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
-      "compileCommands": "",
-      "cStandard": "c17",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "windows-gcc-x64",
-      "defines": [
-        "WXUSINGDLL",
-        "__WXMSW__",
-        "__WX__",
-        "UNICODE",
-        "_UNICODE"
-      ],
-      "includePath": [
-        "${workspaceFolder}/src",
-        "${workspaceFolder}/build/_deps/wxwidgets-src/include",
-        "${workspaceFolder}/build/_deps/wxwidgets-build/lib/gcc_x64_dll/mswud"
-      ]
-    }
-  ]
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Win32-UCRT64",
+            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64",
+            "defines": [
+                "WXUSINGDLL",
+                "__WXMSW__",
+                "__WX__",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/build/_deps/wxwidgets-src/include",
+                "${workspaceFolder}/build/_deps/wxwidgets-build/lib/gcc_x64_dll/mswud",
+                "${workspaceFolder}/build/_deps/cmark-src/src"
+            ]
+        }
+    ]
 }
