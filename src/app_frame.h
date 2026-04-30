@@ -2,7 +2,11 @@
 #include <wx/frame.h>
 #include <wx/string.h>
 #include <wx/bitmap.h>
+
+#include <wx/filedlg.h>
 #include <wx/filename.h>
+#include <wx/wfstream.h>
+#include <wx/log.h>
 #include <wx/filefn.h>
 #include <wx/icon.h>
 #include <wx/image.h>
@@ -22,6 +26,8 @@ public:
 
     void SetAppIcon(const wxString& iconPath);
     void OnClose(wxCommandEvent& event);
+    void FileLoad(wxCommandEvent& event);
+    void FileSaveAs(wxCommandEvent& event);
 
 private:
     TxtCtl* txt_ctl;

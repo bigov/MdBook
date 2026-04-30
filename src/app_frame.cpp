@@ -1,4 +1,27 @@
 #include "app_frame.h"
+#include <wx/sstream.h>
+#include <wx/richtext/richtextxml.h>
+#include <wx/msgdlg.h>
+
+namespace
+{
+static const wxString RICH_BUFFER_EXT = "wxrt";
+
+wxString BuildRichSidecarPath(const wxString& filePath)
+{
+    wxFileName fileName(filePath);
+    fileName.SetExt(RICH_BUFFER_EXT);
+    return fileName.GetFullPath();
+}
+
+void EnsureXmlHandler()
+{
+    if (!wxRichTextBuffer::FindHandler(wxRICHTEXT_TYPE_XML))
+    {
+        wxRichTextBuffer::AddHandler(new wxRichTextXMLHandler);
+    }
+}
+}
 
 AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(x, y), wxSize(w, h))
@@ -13,7 +36,14 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     m_currentPosition = -1;
 
     wxMenu* fileMenu = new wxMenu;
-    fileMenu->Append(APP_CLOSE, _("Close\tCtrl+W"));
+
+    fileMenu->Append(wxID_OPEN, _("Open File\tCtrl+O"));
+    Bind(wxEVT_MENU, &AppFrame::FileLoad, this, wxID_OPEN);
+
+    fileMenu->Append(wxID_SAVEAS, _("Save As...\tCtrl+S"));
+    Bind(wxEVT_MENU, &AppFrame::FileSaveAs, this, wxID_SAVEAS);
+
+    fileMenu->Append(APP_CLOSE, _("Exit\tCtrl+W"));
     Bind(wxEVT_MENU, &AppFrame::OnClose, this, APP_CLOSE);
     
     wxMenu* editMenu = txt_ctl->EditMenu();
@@ -41,6 +71,98 @@ void AppFrame::SetAppIcon(const wxString& iconPath)
         }
     }
 }
+
+void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
+{
+    wxFileDialog openFileDialog(this, _("Open File"), "", "",
+                                "All files (*.*)|*.*",
+                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL) return;
+    auto filepath = openFileDialog.GetPath();
+
+    // --- Load the file content as plain text ---
+    wxFileInputStream input_stream(filepath);
+    if (!input_stream.IsOk())
+    {
+        wxLogError(_("Cannot open file '%s'."), filepath);
+        return;
+    }
+
+    wxString file_content;
+    wxStringOutputStream string_stream(&file_content);
+    input_stream.Read(string_stream);
+
+    if (input_stream.GetLastError() != wxSTREAM_NO_ERROR &&
+        input_stream.GetLastError() != wxSTREAM_EOF)
+    {
+        wxLogError(_("Cannot read file '%s'."), filepath);
+        return;
+    }
+
+    txt_ctl->SetValue(file_content);
+    // --- End load the file content as plain text ---
+
+    // --- Load the file content as rich text ---
+    const wxString richSidecarPath = BuildRichSidecarPath(filepath);
+    if (wxFileExists(richSidecarPath))
+    {
+        wxRichTextBuffer& buffer = txt_ctl->GetBuffer();
+        EnsureXmlHandler();
+        if (buffer.LoadFile(richSidecarPath, wxRICHTEXT_TYPE_XML))
+        {
+            return;
+        }
+
+        wxLogWarning(_("Cannot load rich buffer sidecar '%s'. Falling back to plain text file."),
+                     richSidecarPath);
+    }
+    else
+    {
+        wxMessageBox(
+            wxString::Format(_("Buffer data file was not found:\n%s\n\nPlain text content will be loaded."), richSidecarPath),
+            _("Information"),
+            wxOK | wxICON_INFORMATION,
+            this
+        );
+    }
+}
+
+void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
+{
+    wxFileDialog
+        saveFileDialog(this, _("Save File"), "", "",
+                       "All files (*.*)|*.*", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if (saveFileDialog.ShowModal() == wxID_CANCEL) return;
+ 
+    const wxString filePath = saveFileDialog.GetPath();
+
+    wxFileOutputStream output_stream(filePath);
+    if (!output_stream.IsOk())
+    {
+        wxLogError(_("Cannot save current contents in file '%s'."), filePath);
+        return;
+    }
+
+    const wxString content = txt_ctl->GetValue();
+    const wxScopedCharBuffer utf8 = content.utf8_str();
+    output_stream.Write(utf8.data(), utf8.length());
+
+    if (output_stream.GetLastError() != wxSTREAM_NO_ERROR)
+    {
+        wxLogError(_("Error while writing to file '%s'."), filePath);
+        return;
+    }
+
+    const wxString richSidecarPath = BuildRichSidecarPath(filePath);
+    wxRichTextBuffer& buffer = txt_ctl->GetBuffer();
+    EnsureXmlHandler();
+    if (!buffer.SaveFile(richSidecarPath, wxRICHTEXT_TYPE_XML))
+    {
+        wxLogError(_("Cannot save rich buffer sidecar '%s'."), richSidecarPath);
+    }
+}
+
 
 void AppFrame::OnClose(wxCommandEvent& WXUNUSED(event))
 {
