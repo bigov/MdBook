@@ -67,15 +67,19 @@ wxMenu* TxtCtl::EditMenu()
 void TxtCtl::OnChangeFont(wxCommandEvent& WXUNUSED(event))
 {
     wxFontData data;
+    data.EnableEffects(true);
     wxFontDialog dialog(this, data);
 
     if (dialog.ShowModal() == wxID_OK)
     {
         wxFontData retData = dialog.GetFontData();
         wxFont font = retData.GetChosenFont();
+        wxColour colour = retData.GetColour();
 
         wxTextAttr attr;
         attr.SetFont(font);
+        if (colour.IsOk())
+            attr.SetTextColour(colour);
 
         long start, end;
         GetSelection(& start, & end);
