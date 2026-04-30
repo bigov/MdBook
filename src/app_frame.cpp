@@ -6,6 +6,8 @@
 namespace
 {
 static const wxString RICH_BUFFER_EXT = "wxrt";
+static const wxString TEXT_BUFFER_EXT = "txt";
+static const wxString FILE_DIALOG_WILDCARD = "Plain text files (*.txt)|*.txt|Rich text XML (*.wxrt)|*.wxrt";
 
 wxString BuildRichSidecarPath(const wxString& filePath)
 {
@@ -120,10 +122,12 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
     else
     {
         wxMessageBox(
-            wxString::Format(_("Buffer data file was not found:\n%s\n\nPlain text content will be loaded."), richSidecarPath),
+            wxString::Format(_("Buffer data file was not found:\n%s\n\nPlain text content will be loaded."), richSidecarPath.wc_str()),
             _("Information"),
             wxOK | wxICON_INFORMATION,
-            this
+            this,
+            wxDefaultCoord,
+            wxDefaultCoord
         );
     }
 }
@@ -131,35 +135,39 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
 void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
 {
     wxFileDialog
-        saveFileDialog(this, _("Save File"), "", "",
-                       "All files (*.*)|*.*", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+        saveFileDialog(this, _("Save file as"), "", "", FILE_DIALOG_WILDCARD,
+                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     if (saveFileDialog.ShowModal() == wxID_CANCEL) return;
- 
-    const wxString filePath = saveFileDialog.GetPath();
-
-    wxFileOutputStream output_stream(filePath);
-    if (!output_stream.IsOk())
+    
+    const int fileType = saveFileDialog.GetFilterIndex();
+    wxFileName fileName(saveFileDialog.GetPath());
+    const wxString filePath = fileName.GetFullPath();
+    if (fileName.GetExt().IsEmpty())
     {
-        wxLogError(_("Cannot save current contents in file '%s'."), filePath);
+        fileName.SetExt(fileType == 1 ? RICH_BUFFER_EXT : TEXT_BUFFER_EXT);
+    }
+    wxRichTextBuffer& buffer = txt_ctl->GetBuffer();
+
+    // --- Save the buffer content as rich text ---
+    if (fileType == 1)
+    {
+        EnsureXmlHandler();
+        if (!buffer.SaveFile(filePath, wxRICHTEXT_TYPE_XML))
+        {
+            wxLogError(_("Cannot save rich buffer file '%s'."), filePath.wc_str());
+        }
         return;
     }
 
-    const wxString content = txt_ctl->GetValue();
-    const wxScopedCharBuffer utf8 = content.utf8_str();
-    output_stream.Write(utf8.data(), utf8.length());
+    // --- Save the buffer content as plain text ---
+    const wxString plain_text = buffer.GetText().utf8_str();
+    wxFileOutputStream output_stream(filePath);
+    output_stream.Write(plain_text.data(), plain_text.length());
 
     if (output_stream.GetLastError() != wxSTREAM_NO_ERROR)
     {
-        wxLogError(_("Error while writing to file '%s'."), filePath);
+        wxLogError(_("Error while writing to file '%s'."), filePath.wc_str());
         return;
-    }
-
-    const wxString richSidecarPath = BuildRichSidecarPath(filePath);
-    wxRichTextBuffer& buffer = txt_ctl->GetBuffer();
-    EnsureXmlHandler();
-    if (!buffer.SaveFile(richSidecarPath, wxRICHTEXT_TYPE_XML))
-    {
-        wxLogError(_("Cannot save rich buffer sidecar '%s'."), richSidecarPath);
     }
 }
 

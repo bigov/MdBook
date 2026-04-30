@@ -24,7 +24,6 @@ class AppFrame: public wxFrame
 public:
     AppFrame(const wxString& title, int x, int y, int w, int h);
 
-    void SetAppIcon(const wxString& iconPath);
     void OnClose(wxCommandEvent& event);
     void FileLoad(wxCommandEvent& event);
     void FileSaveAs(wxCommandEvent& event);
@@ -32,4 +31,6 @@ public:
 private:
     TxtCtl* txt_ctl;
     long m_currentPosition;
+
+    void SetAppIcon(const wxString& iconPath);
 };
