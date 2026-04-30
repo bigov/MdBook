@@ -20,7 +20,14 @@ bool MyApp::OnInit()
     if ( !wxApp::OnInit() )
         return false;
 
-    AppFrame* frame = new AppFrame("Rich Text Editor", 50, 50, 600, 400);
+    int screenWidth = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
+    int screenHeight = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
+    int win_width = 800;
+    int win_height = 800;
+    int x = screenWidth/2 - win_width/2;
+    int y = screenHeight/2 - win_height/2 - 120;
+
+    AppFrame* frame = new AppFrame("Rich Text Editor", x, y, win_width, win_height);
     frame->Show(true);
 
     return true;

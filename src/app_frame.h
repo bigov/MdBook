@@ -33,4 +33,7 @@ private:
     long m_currentPosition;
 
     void SetAppIcon(const wxString& iconPath);
+    void FileSaveTxt(wxRichTextBuffer& buffer, const wxString filePath);
+    void FileSaveXml(wxRichTextBuffer& buffer, const wxString filePath);
+    void FileLoadXml(const wxString filePath);
 };

@@ -4,12 +4,15 @@
 TxtCtl::TxtCtl(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRE_MULTILINE)
 {
-    wxString init_string;
-    init_string << "\n title \n";
-    init_string << "Some text with some style\n";
-    SetValue(init_string);
 }
 
+void TxtCtl::LoadXMLHandler()
+{
+    if (!wxRichTextBuffer::FindHandler(wxRICHTEXT_TYPE_XML))
+    {
+        wxRichTextBuffer::AddHandler(new wxRichTextXMLHandler);
+    }
+}
 
 wxMenu* TxtCtl::EditMenu()
 {

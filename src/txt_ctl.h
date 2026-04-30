@@ -2,10 +2,12 @@
 
 #include <wx/menu.h>
 #include <wx/richtext/richtextctrl.h>
+#include <wx/richtext/richtextxml.h>
 #include <wx/colordlg.h>
 #include <wx/fontdlg.h>
 #include <wx/textdlg.h>
 #include <wx/tokenzr.h>
+
 
 enum
 {
@@ -28,6 +30,7 @@ class TxtCtl: public wxRichTextCtrl
 public:
     TxtCtl(wxWindow* parent);
     wxMenu* EditMenu();
+    void LoadXMLHandler();
 
 private:
     void OnChangeFont(wxCommandEvent& WXUNUSED(event));
