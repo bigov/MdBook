@@ -1,22 +1,21 @@
-#include "txt_ctl.h"
-
-#include <wx/menu.h>
-#include <wx/richtext/richtextxml.h>
-#include <wx/wfstream.h>
-#include "wx/sstream.h"
-#include <wx/colordlg.h>
-#include <wx/fontdlg.h>
-#include <wx/textdlg.h>
-#include <wx/tokenzr.h>
-#include <wx/log.h>
-
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <sstream>
-#include <cmark.h>
+
+#include "wx/menu.h"
+#include "wx/richtext/richtextxml.h"
+#include "wx/wfstream.h"
+#include "wx/sstream.h"
+#include "wx/colordlg.h"
+#include "wx/fontdlg.h"
+#include "wx/textdlg.h"
+#include "wx/tokenzr.h"
+#include "wx/log.h"
+#include "cmark.h"
 
 #include "md_parser.h"
+#include "txt_ctl.h"
 
 
 TxtCtl::TxtCtl(wxWindow* parent)

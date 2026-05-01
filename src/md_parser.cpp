@@ -1,7 +1,7 @@
 #include "md_parser.h"
 #include <ostream>
-#include <wx/string.h>
-#include <cmark.h>
+#include "wx/string.h"
+#include "cmark.h"
 
 namespace {
 

@@ -1,6 +1,6 @@
 #pragma once
+#include "wx/richtext/richtextctrl.h"
 
-#include <wx/richtext/richtextctrl.h>
 class wxMenu;
 class wxCommandEvent;
 

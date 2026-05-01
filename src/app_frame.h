@@ -1,6 +1,6 @@
 #pragma once
-#include <wx/frame.h>
-#include <wx/string.h>
+#include "wx/frame.h"
+#include "wx/string.h"
 
 #include "txt_ctl.h"
 
