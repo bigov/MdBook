@@ -79,62 +79,16 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
     wxFileName fileName(filepath);
     wxString fileExt = fileName.GetExt();
     fileExt.LowerCase();
-    if(fileExt == RICH_BUFFER_EXT)
-    {
-        txt_ctl->FileLoadXml(filepath);
-        return;
-    }
-
-    if(fileExt == MARKDOWN_BUFFER_EXT)
-    {
-        txt_ctl->FileLoadMd(filepath);
-        return;
-    }
-
-    wxFileInputStream input_stream(filepath);
-    if (!input_stream.IsOk())
-    {
-        wxLogError(_("Cannot open file '%s'."), filepath);
-        return;
-    }
-
-    wxString file_content;
-    wxStringOutputStream string_stream(&file_content);
-    input_stream.Read(string_stream);
-
-    if (input_stream.GetLastError() != wxSTREAM_NO_ERROR &&
-        input_stream.GetLastError() != wxSTREAM_EOF)
-    {
-        wxLogError(_("Cannot read file '%s'."), filepath);
-        return;
-    }
-
-    txt_ctl->SetValue(file_content);
-}
-
-void AppFrame::FileSaveTxt(wxRichTextBuffer& buffer, const wxString filePath)
-{
-    // --- Save the buffer content as plain text ---
-    const wxString plain_text = buffer.GetText().utf8_str();
-    wxFileOutputStream output_stream(filePath);
-    output_stream.Write(plain_text.data(), plain_text.length());
-
-    if (output_stream.GetLastError() != wxSTREAM_NO_ERROR)
-    {
-        wxLogError(_("Error while writing to file '%s'."), filePath.wc_str());
-        return;
+        
+    if(fileExt == RICH_BUFFER_EXT) {
+        txt_ctl->LoadXmlContent(filepath);
+    } else if(fileExt == MARKDOWN_BUFFER_EXT) {
+        txt_ctl->LoadMdContent(filepath);
+    } else {
+        txt_ctl->LoadPlainText(filepath);
     }
 }
 
-void AppFrame::FileSaveXml(wxRichTextBuffer& buffer, const wxString filePath)
-{
-    txt_ctl->LoadXMLHandler();
-    if (!buffer.SaveFile(filePath, wxRICHTEXT_TYPE_XML))
-    {
-        wxLogError(_("Cannot save rich buffer file '%s'."), filePath.wc_str());
-    }
-    return;
-}
 
 void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
 {
@@ -151,10 +105,9 @@ void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
     }
     
     const wxString filePath = fileName.GetFullPath();
-    wxRichTextBuffer& buffer = txt_ctl->GetBuffer();
 
-    if (fileType == 0) FileSaveTxt(buffer, filePath);
-    if (fileType == 1) FileSaveXml(buffer, filePath);
+    if (fileType == 0) txt_ctl->SaveTxtFile(filePath);
+    if (fileType == 1) txt_ctl->SaveXmlFile(filePath);
 }
 
 

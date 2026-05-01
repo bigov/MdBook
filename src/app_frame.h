@@ -15,8 +15,5 @@ public:
 
 private:
     TxtCtl* txt_ctl;
-
     void SetAppIcon(const wxString& iconPath);
-    void FileSaveTxt(wxRichTextBuffer& buffer, const wxString filePath);
-    void FileSaveXml(wxRichTextBuffer& buffer, const wxString filePath);
 };

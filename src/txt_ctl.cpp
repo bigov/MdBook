@@ -2,6 +2,8 @@
 
 #include <wx/menu.h>
 #include <wx/richtext/richtextxml.h>
+#include <wx/wfstream.h>
+#include "wx/sstream.h"
 #include <wx/colordlg.h>
 #include <wx/fontdlg.h>
 #include <wx/textdlg.h>
@@ -20,6 +22,7 @@
 TxtCtl::TxtCtl(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRE_MULTILINE)
 {
+    this->Clear();
 }
 
 void TxtCtl::LoadXMLHandler()
@@ -30,25 +33,85 @@ void TxtCtl::LoadXMLHandler()
     }
 }
 
-
-// --- Load the file content as rich text ---
-void TxtCtl::FileLoadXml(const wxString filePath)
+// --- Save the buffer content as plain text ---
+void TxtCtl::SaveTxtFile(const wxString filePath)
 {
-    if (wxFileExists(filePath))
+    wxRichTextBuffer& buffer = this->GetBuffer();
+
+    const wxString plain_text = buffer.GetText().utf8_str();
+    wxFileOutputStream output_stream(filePath);
+    output_stream.Write(plain_text.data(), plain_text.length());
+
+    if (output_stream.GetLastError() != wxSTREAM_NO_ERROR)
     {
-        LoadXMLHandler();
-        if (!LoadFile(filePath, wxRICHTEXT_TYPE_XML))
-        {
-            wxLogWarning(_("Cannot load '%s'."), filePath.wc_str());
-            return;
-        }
-        Refresh();
+        wxLogError(_("Error while writing to file '%s'."), filePath.wc_str());
+        return;
     }
 }
 
-// --- Load from the Markdown file text on ACT ---
-void TxtCtl::FileLoadMd(const wxString filePath)
+void TxtCtl::SaveXmlFile(const wxString filePath)
 {
+    wxRichTextBuffer& buffer = this->GetBuffer();
+
+    LoadXMLHandler();
+    if (!buffer.SaveFile(filePath, wxRICHTEXT_TYPE_XML))
+    {
+        wxLogError(_("Cannot save rich buffer file '%s'."), filePath.wc_str());
+    }
+    return;
+}
+
+
+bool TxtCtl::isFileExist(const wxString filePath)
+{
+    if (wxFileExists(filePath)) return true;
+    wxLogError(_("Not found file '%s'."), filePath.wc_str());
+    return false;
+}
+
+
+// --- Load the file content as plain text ---
+void TxtCtl::LoadPlainText(const wxString filePath)
+{
+    if (!isFileExist(filePath)) return;
+    wxFileInputStream input_stream(filePath);
+    if (!input_stream.IsOk())
+    {
+        wxLogError(_("Cannot open file '%s'."), filePath.wc_str());
+        return;
+    }
+
+    wxString file_content;
+    wxStringOutputStream string_stream(&file_content);
+    input_stream.Read(string_stream);
+
+    if (input_stream.GetLastError() != wxSTREAM_NO_ERROR &&
+        input_stream.GetLastError() != wxSTREAM_EOF)
+    {
+        wxLogError(_("Cannot read file '%s'."), filePath.wc_str());
+        return;
+    }
+    this->Clear();
+    this->SetValue(file_content);
+}
+
+// --- Load the file content as rich text ---
+void TxtCtl::LoadXmlContent(const wxString filePath)
+{
+    if (!isFileExist(filePath)) return;
+    LoadXMLHandler();
+    if (!LoadFile(filePath, wxRICHTEXT_TYPE_XML))
+    {
+        wxLogWarning(_("Cannot load '%s'."), filePath.wc_str());
+        return;
+    }
+    this->Refresh();
+}
+
+// --- Load from the Markdown file text on ACT ---
+void TxtCtl::LoadMdContent(const wxString filePath)
+{
+    if (!isFileExist(filePath)) return;
     std::ifstream fin(filePath.ToStdString());
     if (!fin) { std::cerr << "Cannot open input file\n"; return; }
     std::string md((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
@@ -60,7 +123,8 @@ void TxtCtl::FileLoadMd(const wxString filePath)
     process_node(doc, oss);
     cmark_node_free(doc);
 
-    SetValue(wxString::FromUTF8(oss.str()));
+    this->Clear();
+    this->SetValue(wxString::FromUTF8(oss.str()));
 }
 
 
@@ -135,8 +199,8 @@ void TxtCtl::OnChangeFont(wxCommandEvent& WXUNUSED(event))
             attr.SetTextColour(colour);
 
         long start, end;
-        GetSelection(& start, & end);
-        SetStyle(start, end, attr);
+        this->GetSelection(& start, & end);
+        this->SetStyle(start, end, attr);
     }
 }
 
@@ -146,8 +210,8 @@ void TxtCtl::OnLeftAlign(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
 
     long start, end;
-    GetSelection(& start, & end);
-    SetStyle(start, end, attr);
+    this->GetSelection(& start, & end);
+    this->SetStyle(start, end, attr);
 }
 
 void TxtCtl::OnRightAlign(wxCommandEvent& WXUNUSED(event))
@@ -156,8 +220,8 @@ void TxtCtl::OnRightAlign(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_RIGHT);
 
     long start, end;
-    GetSelection(& start, & end);
-    SetStyle(start, end, attr);
+    this->GetSelection(& start, & end);
+    this->SetStyle(start, end, attr);
 }
 
 void TxtCtl::OnJustify(wxCommandEvent& WXUNUSED(event))
@@ -166,8 +230,8 @@ void TxtCtl::OnJustify(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_JUSTIFIED);
 
     long start, end;
-    GetSelection(& start, & end);
-    SetStyle(start, end, attr);
+    this->GetSelection(& start, & end);
+    this->SetStyle(start, end, attr);
 }
 
 void TxtCtl::OnCentre(wxCommandEvent& WXUNUSED(event))
@@ -176,8 +240,8 @@ void TxtCtl::OnCentre(wxCommandEvent& WXUNUSED(event))
     attr.SetAlignment(wxTEXT_ALIGNMENT_CENTRE);
 
     long start, end;
-    GetSelection(& start, & end);
-    SetStyle(start, end, attr);
+    this->GetSelection(& start, & end);
+    this->SetStyle(start, end, attr);
 }
 
 
@@ -203,8 +267,8 @@ void TxtCtl::OnChangeTextColour(wxCommandEvent& WXUNUSED(event))
         attr.SetTextColour(col);
 
         long start, end;
-        GetSelection(& start, & end);
-        SetStyle(start, end, attr);
+        this->GetSelection(& start, & end);
+        this->SetStyle(start, end, attr);
     }
 }
 
@@ -230,8 +294,8 @@ void TxtCtl::OnChangeBackgroundColour(wxCommandEvent& WXUNUSED(event))
         attr.SetBackgroundColour(col);
 
         long start, end;
-        GetSelection(& start, & end);
-        SetStyle(start, end, attr);
+        this->GetSelection(& start, & end);
+        this->SetStyle(start, end, attr);
     }
 }
 
@@ -252,8 +316,8 @@ void TxtCtl::OnLeftIndent(wxCommandEvent& WXUNUSED(event))
         attr.SetLeftIndent(indent);
 
         long start, end;
-        GetSelection(& start, & end);
-        SetStyle(start, end, attr);
+        this->GetSelection(& start, & end);
+        this->SetStyle(start, end, attr);
     }
 }
 
@@ -274,20 +338,18 @@ void TxtCtl::OnRightIndent(wxCommandEvent& WXUNUSED(event))
         attr.SetRightIndent(indent);
 
         long start, end;
-        GetSelection(& start, & end);
-        SetStyle(start, end, attr);
+        this->GetSelection(& start, & end);
+        this->SetStyle(start, end, attr);
     }
 }
 
 void TxtCtl::OnTabStops(wxCommandEvent& WXUNUSED(event))
 {
     wxString tabsStr = wxGetTextFromUser
-                         (
-                            _("Please enter the tab stop positions in tenths of a millimetre, separated by spaces.\nLeave empty to reset tab stops."),
-                            _("Tab Stops"),
-                            wxEmptyString,
-                            this
-                         );
+    (
+        _("Please enter the tab stop positions in tenths of a millimetre, separated by spaces.\nLeave empty to reset tab stops."),
+        _("Tab Stops"), wxEmptyString, this
+    );
 
     wxArrayInt tabs;
 
@@ -302,7 +364,6 @@ void TxtCtl::OnTabStops(wxCommandEvent& WXUNUSED(event))
     attr.SetTabs(tabs);
 
     long start, end;
-    GetSelection(& start, & end);
-    SetStyle(start, end, attr);
+    this->GetSelection(& start, & end);
+    this->SetStyle(start, end, attr);
 }
-
