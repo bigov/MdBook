@@ -24,13 +24,17 @@ public:
     TxtCtl(wxWindow* parent);
     wxMenu* EditMenu();
     void LoadXMLHandler();
-    void LoadXmlContent(const wxString filePath);
-    void LoadMdContent(const wxString filePath);
-    void LoadPlainText(const wxString filePath);
-    void SaveTxtFile(const wxString filePath);
+    void LoadXmlFile(const wxString filePath);
+    void LoadMdFile(const wxString filePath);
+    void LoadPlainFile(const wxString filePath);
+    void SavePlainFile(const wxString filePath);
     void SaveXmlFile(const wxString filePath);
 
 private:
+    wxRichTextAttr plainStyle;
+    void ApplyXmlTemplate(wxString& palain_text);
+    void PushXmlData(const wxString& xml_data);
+
     void OnChangeFont(wxCommandEvent& WXUNUSED(event));
     void OnLeftAlign(wxCommandEvent& event);
     void OnRightAlign(wxCommandEvent& event);
@@ -41,5 +45,4 @@ private:
     void OnLeftIndent(wxCommandEvent& event);
     void OnRightIndent(wxCommandEvent& event);
     void OnTabStops(wxCommandEvent& event);
-    bool isFileExist(const wxString filePath);
 };

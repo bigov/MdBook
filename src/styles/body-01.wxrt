@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<richtext version="1.0.0.0" xmlns="http://www.wxwidgets.org">
+  <paragraphlayout textcolor="#222222" bgcolor="#FFFFFF" fontpointsize="9" fontfamily="70" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Segoe UI" alignment="1">
+    <paragraph>
+      <text>111 111</text>
+    </paragraph>
+    <paragraph>
+      <text>222 222</text>
+    </paragraph>
+    <paragraph>
+      <text></text>
+    </paragraph>
+    <paragraph>
+      <text>333 333 333</text>
+    </paragraph>
+    <paragraph>
+      <text>444 444 444</text>
+    </paragraph>
+    <paragraph>
+      <text></text>
+    </paragraph>
+    <paragraph>
+      <text>"  888"</text>
+    </paragraph>
+    <paragraph>
+      <text>"  888"</text>
+    </paragraph>
+    <paragraph>
+      <text></text>
+    </paragraph>
+    <paragraph>
+      <symbol>9</symbol>
+      <text>555 555 555</text>
+    </paragraph>
+    <paragraph>
+      <symbol>9</symbol>
+      <text>555 555 555</text>
+    </paragraph>
+    <paragraph>
+      <text></text>
+    </paragraph>
+  </paragraphlayout>
+</richtext>

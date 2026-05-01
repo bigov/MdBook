@@ -81,11 +81,11 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
     fileExt.LowerCase();
         
     if(fileExt == RICH_BUFFER_EXT) {
-        txt_ctl->LoadXmlContent(filepath);
+        txt_ctl->LoadXmlFile(filepath);
     } else if(fileExt == MARKDOWN_BUFFER_EXT) {
-        txt_ctl->LoadMdContent(filepath);
+        txt_ctl->LoadMdFile(filepath);
     } else {
-        txt_ctl->LoadPlainText(filepath);
+        txt_ctl->LoadPlainFile(filepath);
     }
 }
 
@@ -106,7 +106,7 @@ void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
     
     const wxString filePath = fileName.GetFullPath();
 
-    if (fileType == 0) txt_ctl->SaveTxtFile(filePath);
+    if (fileType == 0) txt_ctl->SavePlainFile(filePath);
     if (fileType == 1) txt_ctl->SaveXmlFile(filePath);
 }
 

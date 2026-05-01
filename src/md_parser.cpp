@@ -3,25 +3,36 @@
 #include "wx/string.h"
 #include "cmark.h"
 
-namespace {
-
 std::string WxToUtf8(const wxString& value) {
     const wxScopedCharBuffer utf8 = value.ToUTF8();
     return utf8.data() ? std::string(utf8.data()) : std::string();
 }
 
-} // namespace
 
-std::string node_text(cmark_node *node) {
-    // Собираем текстовое представление узла (рекурсивно для inline-узлов)
+std::string node_text(cmark_node *node)
+{
+    // Собрать текстовое представление узла
     char *s = cmark_render_commonmark(node, CMARK_OPT_SMART, 0);
     wxString res = s ? wxString::FromUTF8(s) : wxString();
     free(s);
-    // Удалим возможные завершающие новые строки
+    
+    // Удалить возможные завершающие новые строки
     while (!res.empty() && (res.Last() == '\n' || res.Last() == '\r')) {
         res.RemoveLast();
     }
     return WxToUtf8(res);
+}
+
+
+static std::string collect_text(cmark_node *node) {
+    std::string result;
+    for (cmark_node *cur = node; cur; cur = cmark_node_next(cur)) {
+        const char *lit = cmark_node_get_literal(cur);
+        if (lit) result += lit;
+        cmark_node *child = cmark_node_first_child(cur);
+        if (child) result += collect_text(child);
+    }
+    return result;
 }
 
 void process_node(cmark_node *node, std::ostream &out) {
@@ -34,7 +45,7 @@ void process_node(cmark_node *node, std::ostream &out) {
 
             case CMARK_NODE_HEADING: {
                 int level = cmark_node_get_heading_level(cur);
-                std::string text = node_text(cur);
+                std::string text = collect_text(cmark_node_first_child(cur));
                 out << "ACT_HEADING(" << level << "):" << text << "\n";
                 break;
             }

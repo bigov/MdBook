@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include <cstring>
 
 #include "wx/menu.h"
 #include "wx/richtext/richtextxml.h"
@@ -16,12 +17,58 @@
 
 #include "md_parser.h"
 #include "txt_ctl.h"
+#include "tpls.h"
+
+namespace
+{
+    bool isFileExist(const wxString filePath)
+    {
+        if (wxFileExists(filePath)) return true;
+        wxLogError(_("Not found file '%s'."), filePath.wc_str());
+        return false;
+    }
+
+    void load_file_content(const wxString& filePath, wxString& content)
+    {
+        if (!isFileExist(filePath)) return;
+        wxFileInputStream input_stream(filePath);
+        if (!input_stream.IsOk())
+        {
+            wxLogError(_("Cannot open file '%s'."), filePath.wc_str());
+            return;
+        }
+
+        wxStringOutputStream string_stream(&content);
+        input_stream.Read(string_stream);
+
+        if (input_stream.GetLastError() != wxSTREAM_NO_ERROR &&
+            input_stream.GetLastError() != wxSTREAM_EOF)
+        {
+            wxLogError(_("Cannot read file '%s'."), filePath.wc_str());
+            return;
+        }
+
+        // Normalize line breaks to Unix style for consistent processing
+        content.Replace("\r\n", "\n");
+        content.Replace("\r", "\n");
+    }
+} // namespace
 
 
 TxtCtl::TxtCtl(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRE_MULTILINE)
 {
     this->Clear();
+    plainStyle.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR
+         | wxTEXT_ATTR_BACKGROUND_COLOUR | wxTEXT_ATTR_ALIGNMENT);
+    plainStyle.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
+    plainStyle.SetFont(this->GetFont());
+    plainStyle.SetTextColour(this->GetForegroundColour());
+    plainStyle.SetBackgroundColour(this->GetBackgroundColour());
+    this->SetDefaultStyle(plainStyle);
+    this->SetBasicStyle(plainStyle);
+    this->SetAndShowDefaultStyle(plainStyle);
+    this->SetInsertionPoint(0);
 }
 
 void TxtCtl::LoadXMLHandler()
@@ -33,10 +80,9 @@ void TxtCtl::LoadXMLHandler()
 }
 
 // --- Save the buffer content as plain text ---
-void TxtCtl::SaveTxtFile(const wxString filePath)
+void TxtCtl::SavePlainFile(const wxString filePath)
 {
     wxRichTextBuffer& buffer = this->GetBuffer();
-
     const wxString plain_text = buffer.GetText().utf8_str();
     wxFileOutputStream output_stream(filePath);
     output_stream.Write(plain_text.data(), plain_text.length());
@@ -51,7 +97,6 @@ void TxtCtl::SaveTxtFile(const wxString filePath)
 void TxtCtl::SaveXmlFile(const wxString filePath)
 {
     wxRichTextBuffer& buffer = this->GetBuffer();
-
     LoadXMLHandler();
     if (!buffer.SaveFile(filePath, wxRICHTEXT_TYPE_XML))
     {
@@ -60,70 +105,69 @@ void TxtCtl::SaveXmlFile(const wxString filePath)
     return;
 }
 
-
-bool TxtCtl::isFileExist(const wxString filePath)
+// --- Load the prepared XML data into the control's buffer ---
+void TxtCtl::PushXmlData(const wxString& content)
 {
-    if (wxFileExists(filePath)) return true;
-    wxLogError(_("Not found file '%s'."), filePath.wc_str());
-    return false;
-}
-
-
-// --- Load the file content as plain text ---
-void TxtCtl::LoadPlainText(const wxString filePath)
-{
-    if (!isFileExist(filePath)) return;
-    wxFileInputStream input_stream(filePath);
-    if (!input_stream.IsOk())
-    {
-        wxLogError(_("Cannot open file '%s'."), filePath.wc_str());
-        return;
-    }
-
-    wxString file_content;
-    wxStringOutputStream string_stream(&file_content);
-    input_stream.Read(string_stream);
-
-    if (input_stream.GetLastError() != wxSTREAM_NO_ERROR &&
-        input_stream.GetLastError() != wxSTREAM_EOF)
-    {
-        wxLogError(_("Cannot read file '%s'."), filePath.wc_str());
-        return;
-    }
-    this->Clear();
-    this->SetValue(file_content);
-}
-
-// --- Load the file content as rich text ---
-void TxtCtl::LoadXmlContent(const wxString filePath)
-{
-    if (!isFileExist(filePath)) return;
+    wxStringInputStream xml_stream(content);
+    wxRichTextBuffer& buffer = this->GetBuffer();
     LoadXMLHandler();
-    if (!LoadFile(filePath, wxRICHTEXT_TYPE_XML))
+    if (!buffer.LoadFile(xml_stream, wxRICHTEXT_TYPE_XML))
     {
-        wxLogWarning(_("Cannot load '%s'."), filePath.wc_str());
+        wxLogWarning(_("Cannot load XML from string."));
         return;
     }
     this->Refresh();
 }
 
-// --- Load from the Markdown file text on ACT ---
-void TxtCtl::LoadMdContent(const wxString filePath)
+// --- Wrapping text in an XML template for loading into the control's buffer ---
+void TxtCtl::ApplyXmlTemplate(wxString& plain_text)
+{
+    plain_text.Replace("\n", tpl_NewRow);
+    wxString xml_content = tpl_Body;
+    xml_content.Replace("%CONTENT%", plain_text);
+    PushXmlData(xml_content);
+}
+ 
+// --- Load the plain text content from a file ---
+void TxtCtl::LoadPlainFile(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
-    std::ifstream fin(filePath.ToStdString());
-    if (!fin) { std::cerr << "Cannot open input file\n"; return; }
-    std::string md((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
+    wxString plain_text;
+    load_file_content(filePath, plain_text);
+    ApplyXmlTemplate(plain_text);
+}
 
-    cmark_node *doc = cmark_parse_document(md.c_str(), md.size(), CMARK_OPT_DEFAULT);
-    if (!doc) { std::cerr << "Parse error\n"; return; }
+// --- Load the XML content from a file ---
+void TxtCtl::LoadXmlFile(const wxString filePath)
+{
+    if (!isFileExist(filePath)) return;
+    wxString xml_content;
+    load_file_content(filePath, xml_content);
+    PushXmlData(xml_content);
+}
+
+// --- Load from the Markdown file text on ACT ---
+void TxtCtl::LoadMdFile(const wxString filePath)
+{
+    if (!isFileExist(filePath)) return;
+    wxString plain_text;
+    load_file_content(filePath, plain_text);
+
+    const wxScopedCharBuffer utf8 = plain_text.ToUTF8();
+    const char *mdUtf8 = utf8.data() ? utf8.data() : "";
+    cmark_node *buffer = cmark_parse_document(mdUtf8, strlen(mdUtf8), CMARK_OPT_DEFAULT);
+    if (!buffer)
+    { 
+        wxLogWarning(_("Parse error in file '%s'."), filePath.wc_str());
+        return; 
+    }
 
     std::ostringstream oss;
-    process_node(doc, oss);
-    cmark_node_free(doc);
+    process_node(buffer, oss);
+    cmark_node_free(buffer);
 
-    this->Clear();
-    this->SetValue(wxString::FromUTF8(oss.str()));
+    wxString content = wxString::FromUTF8(oss.str().c_str());
+    ApplyXmlTemplate(content);
 }
 
 

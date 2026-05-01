@@ -108,3 +108,19 @@ add_custom_command( TARGET "${MyAPP}" POST_BUILD
   COMMAND ${CMAKE_COMMAND}
     -E copy "${CMAKE_SOURCE_DIR}/resources/icon.png" "${CMAKE_BINARY_DIR}/assets/"
 )
+
+# Тест парсера
+add_executable(test_parser
+    tests/test_parser.cpp
+    src/md_parser.h
+    src/md_parser.cpp
+)
+target_include_directories(test_parser PRIVATE src)
+target_compile_definitions(test_parser PRIVATE
+    TEST_MD_PATH="${CMAKE_SOURCE_DIR}/resources/docs-tests/test.md"
+)
+target_link_libraries(test_parser PRIVATE wxWidgets::wxWidgets cmark)
+target_link_options(test_parser PRIVATE -mconsole -Wl,-subsystem,console)
+
+enable_testing()
+add_test(NAME parser_heading_test COMMAND test_parser)
