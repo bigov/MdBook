@@ -1,12 +1,8 @@
-# Процесс
+# Title
 
-  - Сделал точечную корректировку
-  - в `app_frame.cpp:46` 
-  - для `AppFrame::FileLoad`:
+ Сделал точечную корректировку в app_frame.cpp для AppFrame FileLoad. Добавил чтение из уже открытого `input_stream` через `wxStringOutputStream`. Добавил проверку ошибки чтения потока.
+
+1 Row prepend. Сделал точечную корректировку в app_frame.cpp для AppFrame FileLoad. Добавил чтение из уже открытого `input_stream` через `wxStringOutputStream`. Добавил проверку ошибки чтения потока.
 
 
-## Уточнение
-
-Добавил чтение из уже открытого `input_stream` через `wxStringOutputStream`. Добавил проверку ошибки чтения потока. Заполняю контрол напрямую: `txt_ctl->SetValue(file_content)`. Убрал загрузку по пути (раньше было `txt_ctl->LoadFile(filepath))`. Также добавлен `include` для строки-потока: `app_frame.cpp:2`.
-
-Добавил чтение из уже открытого `input_stream` через `wxStringOutputStream`. Добавил проверку ошибки чтения потока. Заполняю контрол напрямую: `txt_ctl->SetValue(file_content)`. Убрал загрузку по пути (раньше было `txt_ctl->LoadFile(filepath))`. Также добавлен `include` для строки-потока: `app_frame.cpp:2`.
+2 Rows prepend. Абзац начинается через две строки от предыдущего. Сделал точечную корректировку в app_frame.cpp для AppFrame FileLoad. Добавил чтение из уже открытого `input_stream` через `wxStringOutputStream`. Добавил проверку ошибки чтения потока.

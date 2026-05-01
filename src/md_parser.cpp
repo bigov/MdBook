@@ -36,7 +36,16 @@ static std::string collect_text(cmark_node *node) {
 }
 
 void process_node(cmark_node *node, std::ostream &out) {
+    int prevEndLine = 0;
     for (cmark_node *cur = node; cur; cur = cmark_node_next(cur)) {
+        const int startLine = cmark_node_get_start_line(cur);
+        if (prevEndLine > 0 && startLine > 0) {
+            const int blankLines = startLine - prevEndLine - 1;
+            for (int i = 0; i < blankLines; ++i) {
+                out << "ACT_BLANKROW\n";
+            }
+        }
+
         cmark_node_type t = cmark_node_get_type(cur);
         switch (t) {
             case CMARK_NODE_DOCUMENT:
@@ -112,6 +121,11 @@ void process_node(cmark_node *node, std::ostream &out) {
                 if (cmark_node_first_child(cur))
                     process_node(cmark_node_first_child(cur), out);
                 break;
+        }
+
+        const int endLine = cmark_node_get_end_line(cur);
+        if (endLine > 0) {
+            prevEndLine = endLine;
         }
     }
 }

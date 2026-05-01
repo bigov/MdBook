@@ -155,7 +155,7 @@ void TxtCtl::LoadMdFile(const wxString filePath)
 
     const wxScopedCharBuffer utf8 = plain_text.ToUTF8();
     const char *mdUtf8 = utf8.data() ? utf8.data() : "";
-    cmark_node *buffer = cmark_parse_document(mdUtf8, strlen(mdUtf8), CMARK_OPT_DEFAULT);
+    cmark_node *buffer = cmark_parse_document(mdUtf8, strlen(mdUtf8), CMARK_OPT_SOURCEPOS);
     if (!buffer)
     { 
         wxLogWarning(_("Parse error in file '%s'."), filePath.wc_str());
