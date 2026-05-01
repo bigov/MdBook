@@ -24,6 +24,8 @@ public:
     TxtCtl(wxWindow* parent);
     wxMenu* EditMenu();
     void LoadXMLHandler();
+    void FileLoadXml(const wxString filePath);
+    void FileLoadMd(const wxString filePath);
 
 private:
     void OnChangeFont(wxCommandEvent& WXUNUSED(event));

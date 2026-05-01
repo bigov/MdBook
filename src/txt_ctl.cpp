@@ -6,6 +6,15 @@
 #include <wx/fontdlg.h>
 #include <wx/textdlg.h>
 #include <wx/tokenzr.h>
+#include <wx/log.h>
+
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <cmark.h>
+
+#include "md_parser.h"
 
 
 TxtCtl::TxtCtl(wxWindow* parent)
@@ -20,6 +29,40 @@ void TxtCtl::LoadXMLHandler()
         wxRichTextBuffer::AddHandler(new wxRichTextXMLHandler);
     }
 }
+
+
+// --- Load the file content as rich text ---
+void TxtCtl::FileLoadXml(const wxString filePath)
+{
+    if (wxFileExists(filePath))
+    {
+        LoadXMLHandler();
+        if (!LoadFile(filePath, wxRICHTEXT_TYPE_XML))
+        {
+            wxLogWarning(_("Cannot load '%s'."), filePath.wc_str());
+            return;
+        }
+        Refresh();
+    }
+}
+
+// --- Load from the Markdown file text on ACT ---
+void TxtCtl::FileLoadMd(const wxString filePath)
+{
+    std::ifstream fin(filePath.ToStdString());
+    if (!fin) { std::cerr << "Cannot open input file\n"; return; }
+    std::string md((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
+
+    cmark_node *doc = cmark_parse_document(md.c_str(), md.size(), CMARK_OPT_DEFAULT);
+    if (!doc) { std::cerr << "Parse error\n"; return; }
+
+    std::ostringstream oss;
+    process_node(doc, oss);
+    cmark_node_free(doc);
+
+    SetValue(wxString::FromUTF8(oss.str()));
+}
+
 
 wxMenu* TxtCtl::EditMenu()
 {

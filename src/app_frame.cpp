@@ -10,14 +10,6 @@
 #include <wx/menu.h>
 #include <wx/stdpaths.h>
 
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <sstream>
-#include <cmark.h>
-
-#include "md_parser.h"
-
 static const int APP_CLOSE = 1000;
 static const wxString ASSETS_DIR = "assets";
 static const wxString APP_ICON_FNAME = "icon.png";
@@ -37,7 +29,6 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     SetAppIcon(iconPath);
 
     txt_ctl = new TxtCtl(this);
-    m_currentPosition = -1;
 
     wxMenu* fileMenu = new wxMenu;
 
@@ -76,37 +67,6 @@ void AppFrame::SetAppIcon(const wxString& iconPath)
     }
 }
 
-void AppFrame::FileLoadMd(const wxString filePath)
-{
-    std::ifstream fin(filePath.ToStdString());
-    if (!fin) { std::cerr << "Cannot open input file\n"; return; }
-    std::string md((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
-
-    cmark_node *doc = cmark_parse_document(md.c_str(), md.size(), CMARK_OPT_DEFAULT);
-    if (!doc) { std::cerr << "Parse error\n"; return; }
-
-    std::ostringstream oss;
-    process_node(doc, oss);
-    cmark_node_free(doc);
-
-    txt_ctl->SetValue(wxString::FromUTF8(oss.str()));
-}
-
-
-// --- Load the file content as rich text ---
-void AppFrame::FileLoadXml(const wxString filePath)
-{
-    if (wxFileExists(filePath))
-    {
-        txt_ctl->LoadXMLHandler();
-        if (!txt_ctl->LoadFile(filePath, wxRICHTEXT_TYPE_XML))
-        {
-            wxLogWarning(_("Cannot load '%s'."), filePath.wc_str());
-            return;
-        }
-        txt_ctl->Refresh();
-    }
-}
 
 void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
 {
@@ -121,13 +81,13 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
     fileExt.LowerCase();
     if(fileExt == RICH_BUFFER_EXT)
     {
-        FileLoadXml(filepath);
+        txt_ctl->FileLoadXml(filepath);
         return;
     }
 
     if(fileExt == MARKDOWN_BUFFER_EXT)
     {
-        FileLoadMd(filepath);
+        txt_ctl->FileLoadMd(filepath);
         return;
     }
 
