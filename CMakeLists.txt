@@ -122,5 +122,27 @@ target_compile_definitions(test_parser PRIVATE
 target_link_libraries(test_parser PRIVATE wxWidgets::wxWidgets cmark)
 target_link_options(test_parser PRIVATE -mconsole -Wl,-subsystem,console)
 
+# Отладочный тест парсера
+add_executable(test_parser_debug
+    tests/test_parser_debug.cpp
+    src/md_parser.h
+    src/md_parser.cpp
+    src/tpls.h
+)
+target_include_directories(test_parser_debug PRIVATE src)
+target_link_libraries(test_parser_debug PRIVATE wxWidgets::wxWidgets cmark)
+target_link_options(test_parser_debug PRIVATE -mconsole -Wl,-subsystem,console)
+
+# Тест inline-стилей (strong/italic) и отсутствия дублирования текста
+add_executable(test_inline_styles
+    tests/test_inline_styles.cpp
+    src/md_parser.h
+    src/md_parser.cpp
+)
+target_include_directories(test_inline_styles PRIVATE src)
+target_link_libraries(test_inline_styles PRIVATE wxWidgets::wxWidgets cmark)
+target_link_options(test_inline_styles PRIVATE -mconsole -Wl,-subsystem,console)
+
 enable_testing()
 add_test(NAME parser_heading_test COMMAND test_parser)
+add_test(NAME parser_inline_styles_test COMMAND test_inline_styles)

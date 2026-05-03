@@ -1,47 +1,79 @@
 {
-    "tasks": [
-        {
-            "label": "CMake: build mdbook",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "${workspaceFolder}/build",
-                "--target",
-                "mdbook"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "detail": "Инкрементальная сборка цели mdbook в каталоге build."
-        },
-        {
-            "type": "cppbuild",
-            "label": "C/C++: g++.exe сборка активного файла",
-            "command": "C:/msys64/ucrt64/bin/g++.exe",
-            "args": [
-                "-fdiagnostics-color=always",
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
-            ],
-            "options": {
-                "cwd": "C:/msys64/ucrt64/bin"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": "none",
-            "detail": "Задача создана отладчиком."
-        }
-    ],
-    "version": "2.0.0"
+	"tasks": [
+		{
+			"label": "CMake: build mdbook",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"${workspaceFolder}/build",
+				"--target",
+				"mdbook"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "Инкрементальная сборка цели mdbook в каталоге build."
+		},
+		{
+			"type": "cppbuild",
+			"label": "C/C++: g++.exe сборка активного файла",
+			"command": "C:/msys64/ucrt64/bin/g++.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"-o",
+				"${fileDirname}\\${fileBasenameNoExtension}.exe"
+			],
+			"options": {
+				"cwd": "C:/msys64/ucrt64/bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "none",
+			"detail": "Задача создана отладчиком."
+		},
+		{
+			"label": "Run test_parser dump",
+			"type": "shell",
+			"command": ".\\build\\test_parser.exe",
+			"args": [],
+			"isBackground": false
+		},
+		{
+			"label": "Build test_inline_styles",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"${workspaceFolder}/build",
+				"--target",
+				"test_inline_styles"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "Run inline styles test",
+			"type": "shell",
+			"command": "ctest",
+			"args": [
+				"--test-dir",
+				"${workspaceFolder}/build",
+				"-R",
+				"parser_inline_styles_test",
+				"--output-on-failure"
+			],
+			"isBackground": false
+		}
+	],
+	"version": "2.0.0"
 }

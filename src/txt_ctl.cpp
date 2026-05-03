@@ -21,6 +21,23 @@
 
 namespace
 {
+    std::string to_utf8(const wxString& value)
+    {
+        const wxScopedCharBuffer utf8 = value.ToUTF8();
+        return utf8.data() ? std::string(utf8.data()) : std::string();
+    }
+
+    std::string replace_placeholder(std::string tpl, const std::string& placeholder, const std::string& content)
+    {
+        size_t pos = 0;
+        while ((pos = tpl.find(placeholder, pos)) != std::string::npos)
+        {
+            tpl.replace(pos, placeholder.size(), content);
+            pos += content.size();
+        }
+        return tpl;
+    }
+
     bool isFileExist(const wxString filePath)
     {
         if (wxFileExists(filePath)) return true;
@@ -123,10 +140,10 @@ void TxtCtl::PushXmlData(const wxString& content)
 // --- Wrapping text in an XML template for loading into the control's buffer ---
 void TxtCtl::ApplyXmlTemplate(wxString& plain_text)
 {
-    plain_text.Replace("\n", tpl_NewRow);
-    wxString xml_content = tpl_Body;
-    xml_content.Replace("%CONTENT%", plain_text);
-    PushXmlData(xml_content);
+    std::string plain_utf8 = to_utf8(plain_text);
+    plain_utf8 = replace_placeholder(plain_utf8, "\n", tpl_NewRow);
+    const std::string xml_utf8 = replace_placeholder(tpl_Body, "%CONTENT%", plain_utf8);
+    PushXmlData(wxString::FromUTF8(xml_utf8.c_str()));
 }
  
 // --- Load the plain text content from a file ---
@@ -166,10 +183,8 @@ void TxtCtl::LoadMdFile(const wxString filePath)
     std::ostringstream oss;
     process_node(buffer, oss);
     cmark_node_free(buffer);
-    wxString content = wxString::FromUTF8(oss.str().c_str());
-    wxString xml_content = tpl_header;
-    xml_content.Replace("%CONTENT%", content);
-    PushXmlData(xml_content);
+    const std::string xml_utf8 = replace_placeholder(tpl_header, "%CONTENT%", oss.str());
+    PushXmlData(wxString::FromUTF8(xml_utf8.c_str()));
 }
 
 
