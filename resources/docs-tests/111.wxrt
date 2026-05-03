@@ -33,7 +33,7 @@
       <text textcolor="#000000" fontpointsize="12" fontfamily="70" fontstyle="93" fontweight="400" fontunderlined="0" fontface="Segoe UI">&#1076;&#1074;&#1091;&#1084;&#1103;</text>
       <text>" &#1087;&#1091;&#1089;&#1090;&#1099;&#1084;&#1080; &#1089;&#1090;&#1088;&#1086;&#1082;&#1072;&#1084;&#1080;. Lorenzen was called up to pinch-hit in the seventh inning of a "</text>
       <text textcolor="#000000" fontpointsize="12" fontfamily="70" fontstyle="93" fontweight="400" fontunderlined="0" fontface="Segoe UI">June 30</text>
-      <text>", 2018, game against the Brewers and hit a grand slam off pitcher Jacob Barnes. It was Lorenzen's third home run of the "</text>
+      <text textcolor="#0000FF" fontunderlined="1" url="http://example.com">, 2018, game against the Brewers and hit a grand slam off pitcher Jacob Barnes. It was Lorenzen's third home run of the </text>
       <text textcolor="#000000" fontpointsize="12" fontfamily="70" fontstyle="93" fontweight="400" fontunderlined="0" fontface="Segoe UI">2018 season</text>
       <text>.</text>
     </paragraph>
