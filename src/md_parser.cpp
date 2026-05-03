@@ -2,6 +2,7 @@
 #include <ostream>
 #include "wx/string.h"
 #include "cmark.h"
+#include "tpls.h"
 
 std::string WxToUtf8(const wxString& value) {
     const wxScopedCharBuffer utf8 = value.ToUTF8();
@@ -39,10 +40,14 @@ void process_node(cmark_node *node, std::ostream &out) {
     int prevEndLine = 0;
     for (cmark_node *cur = node; cur; cur = cmark_node_next(cur)) {
         const int startLine = cmark_node_get_start_line(cur);
+        
+        // Blank rows
         if (prevEndLine > 0 && startLine > 0) {
             const int blankLines = startLine - prevEndLine - 1;
             for (int i = 0; i < blankLines; ++i) {
-                out << "ACT_BLANKROW\n";
+                wxString xml_content = tpl_p;
+                xml_content.Replace("%CONTENT%", "");
+                out << xml_content;
             }
         }
 
@@ -52,16 +57,18 @@ void process_node(cmark_node *node, std::ostream &out) {
                 process_node(cmark_node_first_child(cur), out);
                 break;
 
+
             case CMARK_NODE_HEADING: {
-                int level = cmark_node_get_heading_level(cur);
-                std::string text = collect_text(cmark_node_first_child(cur));
-                out << "ACT_HEADING(" << level << "):" << text << "\n";
+                wxString xml_content = tpl_h[cmark_node_get_heading_level(cur) - 1];
+                xml_content.Replace("%CONTENT%", collect_text(cmark_node_first_child(cur)));
+                out << xml_content;
                 break;
             }
 
             case CMARK_NODE_PARAGRAPH: {
-                std::string text = node_text(cur);
-                out << "ACT_PAR:" << text << "\n";
+                wxString xml_content = tpl_p;
+                xml_content.Replace("%CONTENT%", node_text(cur));
+                out << xml_content;
                 break;
             }
 

@@ -114,6 +114,7 @@ void TxtCtl::PushXmlData(const wxString& content)
     if (!buffer.LoadFile(xml_stream, wxRICHTEXT_TYPE_XML))
     {
         wxLogWarning(_("Cannot load XML from string."));
+        SetValue(content);
         return;
     }
     this->Refresh();
@@ -165,9 +166,10 @@ void TxtCtl::LoadMdFile(const wxString filePath)
     std::ostringstream oss;
     process_node(buffer, oss);
     cmark_node_free(buffer);
-
     wxString content = wxString::FromUTF8(oss.str().c_str());
-    ApplyXmlTemplate(content);
+    wxString xml_content = tpl_header;
+    xml_content.Replace("%CONTENT%", content);
+    PushXmlData(xml_content);
 }
 
 
