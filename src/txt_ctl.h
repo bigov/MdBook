@@ -18,15 +18,16 @@ enum
     RICHTEXT_TAB_STOPS
 };
 
+static const wxString RICH_BUFFER_EXT = "wxrt";
+static const wxString TEXT_BUFFER_EXT = "txt";
+static const wxString MARK_BUFFER_EXT = "md";
+
 class TxtCtl: public wxRichTextCtrl
 {
 public:
     TxtCtl(wxWindow* parent);
     wxMenu* EditMenu();
-    void LoadXMLHandler();
-    void LoadXmlFile(const wxString filePath);
-    void LoadMdFile(const wxString filePath);
-    void LoadPlainFile(const wxString filePath);
+    void LoadFile(const wxString filePath);
     void SavePlainFile(const wxString filePath);
     void SaveXmlFile(const wxString filePath);
 
@@ -45,4 +46,9 @@ private:
     void OnLeftIndent(wxCommandEvent& event);
     void OnRightIndent(wxCommandEvent& event);
     void OnTabStops(wxCommandEvent& event);
+    void LoadXMLHandler();
+    void LoadXmlFile(const wxString filePath);
+    void LoadMdFile(const wxString filePath);
+    void LoadPlainFile(const wxString filePath);
+
 };

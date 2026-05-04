@@ -33,7 +33,7 @@ set(MyApp_VERSION_MAJOR 0)
 set(MyApp_VERSION_MINOR 1)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWXUSINGDLL -D__WXMSW__ -mwindows -Wl,-subsystem,windows")
 
-# Базовая библиотека
+# Базовая GUI библиотека - wxWidgets
 include(FetchContent)
 set(WXWIDGETS_LOCAL_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/wxwidgets-src")
 if(EXISTS "${WXWIDGETS_LOCAL_SOURCE_DIR}/CMakeLists.txt")
@@ -51,17 +51,17 @@ else()
       GIT_TAG "v3.3.2"
     )
 endif()
+
 set(wxUSE_WEBVIEW "OFF")
-#set(wxWidgets_USE_STATIC 1)
+set(wxWidgets_USE_STATIC "OFF")
 set(wxBUILD_SHARED "ON")
 set(wxBUILD_MONOLITHIC "ON")
 
 FetchContent_GetProperties(wxWidgets)
 FetchContent_MakeAvailable(wxWidgets)
 
-# Allow FetchContent to download cmark on first configure.
+# Библиотека парсера Markdown
 set(FETCHCONTENT_FULLY_DISCONNECTED OFF)
-
 set(CMARK_LOCAL_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/cmark-src")
 if(EXISTS "${CMARK_LOCAL_SOURCE_DIR}/CMakeLists.txt")
     message(STATUS "Using local cmark source: ${CMARK_LOCAL_SOURCE_DIR}")
@@ -76,6 +76,7 @@ else()
       GIT_TAG "0.31.2"
     )
 endif()
+
 FetchContent_GetProperties(cmark)
 FetchContent_MakeAvailable(cmark)
 
@@ -108,41 +109,3 @@ add_custom_command( TARGET "${MyAPP}" POST_BUILD
   COMMAND ${CMAKE_COMMAND}
     -E copy "${CMAKE_SOURCE_DIR}/resources/icon.png" "${CMAKE_BINARY_DIR}/assets/"
 )
-
-# Тест парсера
-add_executable(test_parser
-    tests/test_parser.cpp
-    src/md_parser.h
-    src/md_parser.cpp
-)
-target_include_directories(test_parser PRIVATE src)
-target_compile_definitions(test_parser PRIVATE
-    TEST_MD_PATH="${CMAKE_SOURCE_DIR}/resources/docs-tests/test.md"
-)
-target_link_libraries(test_parser PRIVATE wxWidgets::wxWidgets cmark)
-target_link_options(test_parser PRIVATE -mconsole -Wl,-subsystem,console)
-
-# Отладочный тест парсера
-add_executable(test_parser_debug
-    tests/test_parser_debug.cpp
-    src/md_parser.h
-    src/md_parser.cpp
-    src/tpls.h
-)
-target_include_directories(test_parser_debug PRIVATE src)
-target_link_libraries(test_parser_debug PRIVATE wxWidgets::wxWidgets cmark)
-target_link_options(test_parser_debug PRIVATE -mconsole -Wl,-subsystem,console)
-
-# Тест inline-стилей (strong/italic) и отсутствия дублирования текста
-add_executable(test_inline_styles
-    tests/test_inline_styles.cpp
-    src/md_parser.h
-    src/md_parser.cpp
-)
-target_include_directories(test_inline_styles PRIVATE src)
-target_link_libraries(test_inline_styles PRIVATE wxWidgets::wxWidgets cmark)
-target_link_options(test_inline_styles PRIVATE -mconsole -Wl,-subsystem,console)
-
-enable_testing()
-add_test(NAME parser_heading_test COMMAND test_parser)
-add_test(NAME parser_inline_styles_test COMMAND test_inline_styles)

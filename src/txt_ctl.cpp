@@ -146,6 +146,22 @@ void TxtCtl::ApplyXmlTemplate(wxString& plain_text)
     PushXmlData(wxString::FromUTF8(xml_utf8.c_str()));
 }
  
+// --- Load files with any formats ---
+void TxtCtl::LoadFile(const wxString filePath)
+{
+    wxFileName fileName(filePath);
+
+    wxString fileExt = fileName.GetExt();
+    fileExt.LowerCase();
+    if(fileExt == RICH_BUFFER_EXT) {
+        this->LoadXmlFile(filePath);
+    } else if(fileExt == MARK_BUFFER_EXT) {
+        this->LoadMdFile(filePath);
+    } else {
+        this->LoadPlainFile(filePath);
+    }
+}
+
 // --- Load the plain text content from a file ---
 void TxtCtl::LoadPlainFile(const wxString filePath)
 {
@@ -173,6 +189,7 @@ void TxtCtl::LoadMdFile(const wxString filePath)
 
     const wxScopedCharBuffer utf8 = plain_text.ToUTF8();
     const char *mdUtf8 = utf8.data() ? utf8.data() : "";
+    
     cmark_node *buffer = cmark_parse_document(mdUtf8, strlen(mdUtf8), CMARK_OPT_SOURCEPOS);
     if (!buffer)
     { 
@@ -183,7 +200,9 @@ void TxtCtl::LoadMdFile(const wxString filePath)
     std::ostringstream oss;
     process_node(buffer, oss);
     cmark_node_free(buffer);
+
     const std::string xml_utf8 = replace_placeholder(tpl_header, "%CONTENT%", oss.str());
+    
     PushXmlData(wxString::FromUTF8(xml_utf8.c_str()));
 }
 

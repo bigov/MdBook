@@ -1,7 +1,6 @@
 dist
 release
 build
-tests
 var
 tmp
 bin

@@ -32,17 +32,17 @@ inline const std::string tpl_p = R"(    <paragraph>
 // Strong (жирный)
 inline const std::string tpl_s = R"(</text>
       <text textcolor="#000000" fontpointsize="12" fontfamily="70" fontstyle="90" fontweight="700" fontunderlined="0" fontface="Segoe UI">%CONTENT%</text>
-  <text>)";
+      <text>)";
 
 // Italic (курсив)
 inline const std::string tpl_i = R"(</text>
       <text textcolor="#000000" fontpointsize="12" fontfamily="70" fontstyle="93" fontweight="500" fontunderlined="0" fontface="Segoe UI">%CONTENT%</text>
-  <text>)";
+      <text>)";
 
 // Bold + Italic (вложенный ***text***)
 inline const std::string tpl_bi = R"(</text>
       <text textcolor="#000000" fontpointsize="12" fontfamily="70" fontstyle="93" fontweight="700" fontunderlined="0" fontface="Segoe UI">%CONTENT%</text>
-  <text>)";
+      <text>)";
 
 // Фрагмент кода в строке: `xxx`
 inline const std::string tpl_lncode = R"(</text>

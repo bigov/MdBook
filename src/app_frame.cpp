@@ -13,11 +13,6 @@
 static const int APP_CLOSE = 1000;
 static const wxString ASSETS_DIR = "assets";
 static const wxString APP_ICON_FNAME = "icon.png";
-static const wxString RICH_BUFFER_EXT = "wxrt";
-static const wxString TEXT_BUFFER_EXT = "txt";
-static const wxString MARKDOWN_BUFFER_EXT = "md";
-static const wxString FILE_DIALOG_WILDCARD = "Plain text files (*.txt)|*.txt|Rich text XML (*.wxrt)|*.wxrt";
-
 
 AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(x, y), wxSize(w, h))
@@ -76,24 +71,15 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
 
     if (openFileDialog.ShowModal() == wxID_CANCEL) return;
     auto filepath = openFileDialog.GetPath();
-    wxFileName fileName(filepath);
-    wxString fileExt = fileName.GetExt();
-    fileExt.LowerCase();
-        
-    if(fileExt == RICH_BUFFER_EXT) {
-        txt_ctl->LoadXmlFile(filepath);
-    } else if(fileExt == MARKDOWN_BUFFER_EXT) {
-        txt_ctl->LoadMdFile(filepath);
-    } else {
-        txt_ctl->LoadPlainFile(filepath);
-    }
+    txt_ctl->LoadFile(filepath);
 }
 
 
 void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
 {
     wxFileDialog
-        saveFileDialog(this, _("Save file as"), "", "", FILE_DIALOG_WILDCARD,
+        saveFileDialog(this, _("Save file as"), "", "",
+                      "Plain text files (*.txt)|*.txt|Rich text XML (*.wxrt)|*.wxrt",
                        wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     if (saveFileDialog.ShowModal() == wxID_CANCEL) return;
     

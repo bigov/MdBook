@@ -1,6 +1,6 @@
 # Проверочный текст
 
-During spring training in **2016**, he was diagnosed with a sprained ulnar collateral ligament in his right elbow, and he did not return until mid-June. He pitched out of the bullpen for _Cincinnati_ upon his return, and he finished the year with a 2–1 record and a 2.88 ERA in 35 relief appearances. `In 2017, he was 8–4 with a 4.45` ERA in 70 appearances in relief.
+During spring training in **2016**, he was diagnosed with a **sprained** ulnar collateral ligament in his right elbow, and he did **not return** until mid-June. He pitched out of the bullpen for _Cincinnati_ upon his return, and he finished the year with a 2–1 record and a 2.88 ERA in 35 relief appearances. `In 2017, he was 8–4 with a 4.45` ERA in 70 appearances in relief.
 
 
 ## Подзаголовок
