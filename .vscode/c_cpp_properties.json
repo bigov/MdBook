@@ -16,9 +16,10 @@
             ],
             "includePath": [
                 "${workspaceFolder}/src",
-                "${workspaceFolder}/build/_deps/wxwidgets-src/include",
+                "${workspaceFolder}/.deps-src/wxwidgets.git/include",
                 "${workspaceFolder}/build/_deps/wxwidgets-build/lib/gcc_x64_dll/mswud",
-                "${workspaceFolder}/build/_deps/cmark-src/src"
+                "${workspaceFolder}/.deps-src/cmark.git/src",
+                "${workspaceFolder}/build/_deps/cmark-build/src"
             ]
         }
     ]

@@ -1,0 +1,83 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 4,
+    "minor": 2,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base-debug",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "dev-app",
+      "inherits": "base-debug",
+      "displayName": "Dev: App",
+      "description": "Сборка только GUI-приложения mdbook",
+      "cacheVariables": {
+        "MDBOOK_BUILD_APP": "ON",
+        "MDBOOK_BUILD_TESTS": "OFF",
+        "MDBOOK_BUILD_PARSER_TOOL": "OFF"
+      }
+    },
+    {
+      "name": "dev-tests",
+      "inherits": "base-debug",
+      "displayName": "Dev: Tests",
+      "description": "Сборка только тестовых утилит из tests",
+      "cacheVariables": {
+        "MDBOOK_BUILD_APP": "OFF",
+        "MDBOOK_BUILD_TESTS": "ON",
+        "MDBOOK_BUILD_PARSER_TOOL": "OFF"
+      }
+    },
+    {
+      "name": "dev-parser",
+      "inherits": "base-debug",
+      "displayName": "Dev: Parser Utility",
+      "description": "Сборка только утилиты parser из parser",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "MDBOOK_BUILD_APP": "OFF",
+        "MDBOOK_BUILD_TESTS": "OFF",
+        "MDBOOK_BUILD_PARSER_TOOL": "ON"
+      }
+    },
+    {
+      "name": "dev-all",
+      "inherits": "base-debug",
+      "displayName": "Dev: All",
+      "description": "Сборка приложения, тестов и parser-утилиты",
+      "cacheVariables": {
+        "MDBOOK_BUILD_APP": "ON",
+        "MDBOOK_BUILD_TESTS": "ON",
+        "MDBOOK_BUILD_PARSER_TOOL": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-app",
+      "configurePreset": "dev-app"
+    },
+    {
+      "name": "build-tests",
+      "configurePreset": "dev-tests"
+    },
+    {
+      "name": "build-parser",
+      "configurePreset": "dev-parser"
+    },
+    {
+      "name": "build-all",
+      "configurePreset": "dev-all"
+    }
+  ]
+}

@@ -1,14 +1,8 @@
 {
   "cmake.configureOnOpen": true,
-  "cmake.buildDirectory": "${workspaceFolder}/build",
-  "cmake.configureArgs": [
-    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-    "-DCMAKE_BUILD_TYPE=Debug"
-  ],
-  "cmake.configureSettings": {
-    "CMAKE_EXPORT_COMPILE_COMMANDS": true,
-    "CMAKE_BUILD_TYPE": "Debug"
-  },
+  "cmake.useCMakePresets": "always",
+  "cmake.configurePreset": "dev-parser",
+  "cmake.buildPreset": "build-parser",
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
   "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
   "C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe",

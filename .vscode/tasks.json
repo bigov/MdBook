@@ -1,14 +1,31 @@
 {
 	"tasks": [
 		{
+			"label": "CMake: configure app",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--preset",
+				"dev-app"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
 			"label": "CMake: build mdbook",
 			"type": "shell",
 			"command": "cmake",
 			"args": [
 				"--build",
-				"${workspaceFolder}/build",
+				"--preset",
+				"build-app",
 				"--target",
 				"mdbook"
+			],
+			"dependsOn": [
+				"CMake: configure app"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -21,6 +38,68 @@
 				"isDefault": true
 			},
 			"detail": "Инкрементальная сборка цели mdbook в каталоге build."
+		},
+		{
+			"label": "CMake: configure tests",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--preset",
+				"dev-tests"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "CMake: build tests",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"--preset",
+				"build-tests"
+			],
+			"dependsOn": [
+				"CMake: configure tests"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "CMake: configure parser",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--preset",
+				"dev-parser"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "CMake: build parser utility",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"--preset",
+				"build-parser",
+				"--target",
+				"parser"
+			],
+			"dependsOn": [
+				"CMake: configure parser"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
 		},
 		{
 			"type": "cppbuild",
@@ -45,8 +124,11 @@
 		{
 			"label": "Run test_parser dump",
 			"type": "shell",
-			"command": ".\\build\\test_parser.exe",
+			"command": ".\\build\\dev-tests\\test_parser.exe",
 			"args": [],
+			"dependsOn": [
+				"CMake: build tests"
+			],
 			"isBackground": false
 		},
 		{
@@ -55,9 +137,13 @@
 			"command": "cmake",
 			"args": [
 				"--build",
-				"${workspaceFolder}/build",
+				"--preset",
+				"build-tests",
 				"--target",
 				"test_inline_styles"
+			],
+			"dependsOn": [
+				"CMake: configure tests"
 			],
 			"isBackground": false
 		},
@@ -67,10 +153,13 @@
 			"command": "ctest",
 			"args": [
 				"--test-dir",
-				"${workspaceFolder}/build",
+				"${workspaceFolder}/build/dev-tests",
 				"-R",
 				"parser_inline_styles_test",
 				"--output-on-failure"
+			],
+			"dependsOn": [
+				"Build test_inline_styles"
 			],
 			"isBackground": false
 		}

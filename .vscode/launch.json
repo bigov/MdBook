@@ -5,11 +5,39 @@
             "name": "Debug mdbook",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/mdbook.exe",
+            "program": "${workspaceFolder}/build/dev-app/mdbook.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build",
+            "cwd": "${workspaceFolder}/build/dev-app",
             "preLaunchTask": "CMake: build mdbook",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Включить автоматическое форматирование для gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Задать для варианта приложения дизассемблирования значение Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug parser",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/parser.exe",
+            "args": [
+                "${workspaceFolder}/tests/docs-tests/test.md"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: build parser utility",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
