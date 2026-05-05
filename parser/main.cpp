@@ -11,7 +11,7 @@ class NParser {
 private:
     cmark_node* node;
     int row;
-    void next_row();
+    void next_row(cmark_node* n);
     void blank_row(int count);
     void show_lines_interval(cmark_node* n);
     void show_literal(cmark_node* n);
@@ -61,27 +61,30 @@ NParser::~NParser()
     }
 }
 
-void NParser::next_row() {
+void NParser::next_row(cmark_node* n) {
     this->row++;
     std::cout << this->row << ": ";
+
+    int s = cmark_node_get_start_line(n);
+    if(s > this->row) blank_row(s - this->row);
 }
 
 void NParser::blank_row(int count) {
     for (int i = 0; i < count; i++) {
         std::cout << "--- --- ---\n";
-        next_row();
+        next_row(NULL);
     }
 }
 
 // Интервал строк, если доступны
 void NParser::show_lines_interval(cmark_node* n) {
+    return;
+
     int s = cmark_node_get_start_line(n);
     int e = cmark_node_get_end_line(n);
     if(cmark_node_is_block(n)) {
       std::cout << "[" << s << "-" << e << "] ";
     }
-    return;
-
     if(cmark_node_is_inline(n)) {
       std::cout << "[ " << s << " ] ";
     }
@@ -114,10 +117,11 @@ void NParser::nt_item(cmark_node* n) {
     std::cout << "Item\n";
 }
 void NParser::nt_code_block(cmark_node* n) {
+  next_row(n);
   show_lines_interval(n);
-  std::cout << "Code block\n";
+  std::cout << "``` START code block";
   const char* info = cmark_node_get_fence_info(n); // язык/инфо
-  if (info && *info) std::cout << " (info: \"" << info << "\")";
+  if (info && *info) std::cout << " \"" << info << "\"";
   std::cout << "\n";
   const char* lit = cmark_node_get_literal(n);
   if (lit && *lit) {
@@ -125,32 +129,30 @@ void NParser::nt_code_block(cmark_node* n) {
     std::istringstream ss(lit);
     std::string line;
     while (std::getline(ss, line)) {
-      next_row();
+      next_row(n);
       std::cout << line << "\n";
     }
+    next_row(n);
+    std::cout << "``` End code block.\n";
   }
 }
 void NParser::nt_html_block(cmark_node* n) {
+    next_row(n);
     show_lines_interval(n);
     std::cout << "HTML block\n";
 }
 void NParser::nt_custom_block(cmark_node* n) {
+    next_row(n);
     show_lines_interval(n);
     std::cout << "Custom block\n";
 }
 void NParser::nt_paragraph(cmark_node* n) {
-    next_row();
-    int s = cmark_node_get_start_line(n);
-    if(s > this->row) blank_row(s - this->row);
-
+    next_row(n);
     show_lines_interval(n);
     std::cout << "Paragraph: ";
 }
 void NParser::nt_heading(cmark_node* n) {
-    next_row();
-    int s = cmark_node_get_start_line(n);
-    if(s > this->row) blank_row(s - this->row);
-      
+    next_row(n);
     show_lines_interval(n);
     std::cout << "Heading_";
     int level = cmark_node_get_heading_level(n);
@@ -161,7 +163,7 @@ void NParser::nt_heading(cmark_node* n) {
     //show_literal(d);
 }
 void NParser::nt_thematic_break(cmark_node* n) {
-    next_row();
+    next_row(n);
     show_lines_interval(n);
     std::cout << "Thematic break\n";
 }
@@ -171,7 +173,7 @@ void NParser::nt_text(cmark_node* n) {
     show_literal(n);
 }
 void NParser::nt_softbreak(cmark_node* n) {
-    next_row();
+    next_row(n);
     // У softbreak нет номеров строк
     std::cout << "Softbreak: ";
 }
@@ -181,7 +183,7 @@ void NParser::nt_linebreak(cmark_node* n) {
 }
 void NParser::nt_code(cmark_node* n) {
     show_lines_interval(n);
-    std::cout << "CodeL: ";
+    std::cout << "CodeL: " << cmark_node_get_literal(n) << "\n";
 }
 void NParser::nt_html_inline(cmark_node* n) {
     show_lines_interval(n);
