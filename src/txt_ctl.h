@@ -1,3 +1,15 @@
+/**
+Related Classes (https://docs.wxwidgets.org/stable/overview_richtextctrl.html):
+
+    Major classes: wxRichTextCtrl, wxRichTextBuffer, wxRichTextEvent
+    Helper classes: wxTextAttr, wxRichTextRange
+    File handler classes: wxRichTextFileHandler, wxRichTextHTMLHandler, wxRichTextXMLHandler
+    Style classes: wxRichTextCharacterStyleDefinition, wxRichTextParagraphStyleDefinition, wxRichTextListStyleDefinition, wxRichTextStyleSheet
+    Additional controls: wxRichTextStyleComboCtrl, wxRichTextStyleListBox, wxRichTextStyleListCtrl
+    Printing classes: wxRichTextPrinting, wxRichTextPrintout, wxRichTextHeaderFooterData
+    Dialog classes: wxRichTextStyleOrganiserDialog, wxRichTextFormattingDialog, wxSymbolPickerDialog
+*/
+
 #pragma once
 #include "wx/richtext/richtextctrl.h"
 
@@ -50,5 +62,4 @@ private:
     void LoadXmlFile(const wxString filePath);
     void LoadMdFile(const wxString filePath);
     void LoadPlainFile(const wxString filePath);
-
 };

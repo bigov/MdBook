@@ -71,9 +71,10 @@ namespace
     }
 } // namespace
 
-
+// Конструктор класса TxtCtl
 TxtCtl::TxtCtl(wxWindow* parent)
-    : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRE_MULTILINE)
+    : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                    wxVSCROLL | wxHSCROLL | wxBORDER_NONE | wxWANTS_CHARS)
 {
     this->Clear();
     plainStyle.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR
@@ -149,7 +150,7 @@ void TxtCtl::ApplyXmlTemplate(wxString& plain_text)
 // --- Load files with any formats ---
 void TxtCtl::LoadFile(const wxString filePath)
 {
-    wxFileName fileName(filePath);
+    auto fileName = wxFileName(filePath);
 
     wxString fileExt = fileName.GetExt();
     fileExt.LowerCase();

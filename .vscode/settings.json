@@ -4,7 +4,6 @@
   "cmake.configurePreset": "dev-parser",
   "cmake.buildPreset": "build-parser",
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
   "C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
   "C_Cpp.default.intelliSenseMode": "windows-gcc-x64"
 }
