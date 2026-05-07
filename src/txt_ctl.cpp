@@ -13,11 +13,8 @@
 #include "wx/textdlg.h"
 #include "wx/tokenzr.h"
 #include "wx/log.h"
-#include "cmark.h"
-
-#include "md_parser.h"
 #include "txt_ctl.h"
-#include "tpls.h"
+
 
 namespace
 {
@@ -76,17 +73,30 @@ TxtCtl::TxtCtl(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
                     wxVSCROLL | wxHSCROLL | wxBORDER_NONE | wxWANTS_CHARS)
 {
-    this->Clear();
-    plainStyle.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR
+    this->plainStyle.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR
          | wxTEXT_ATTR_BACKGROUND_COLOUR | wxTEXT_ATTR_ALIGNMENT);
-    plainStyle.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
-    plainStyle.SetFont(this->GetFont());
-    plainStyle.SetTextColour(this->GetForegroundColour());
-    plainStyle.SetBackgroundColour(this->GetBackgroundColour());
-    this->SetDefaultStyle(plainStyle);
-    this->SetBasicStyle(plainStyle);
-    this->SetAndShowDefaultStyle(plainStyle);
+    this->plainStyle.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
+
+    wxFont base_font = wxFont(11, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    wxColor base_fg_color = "#444444";
+    wxColor base_bg_color = "#ffffff";
+
+    this->plainStyle.SetFont(base_font);
+    this->plainStyle.SetTextColour(base_fg_color);
+    this->plainStyle.SetBackgroundColour(base_bg_color);
+
+    NewDocument();
+}
+
+void TxtCtl::NewDocument()
+{
+    this->Clear();
+    this->SetDefaultStyle(this->plainStyle);
+    this->SetBasicStyle(this->plainStyle);
+    this->SetAndShowDefaultStyle(this->plainStyle);
+    this->SetMargins(6, 4);
     this->SetInsertionPoint(0);
+    this->row = 0;
 }
 
 void TxtCtl::LoadXMLHandler()
@@ -138,15 +148,6 @@ void TxtCtl::PushXmlData(const wxString& content)
     this->Refresh();
 }
 
-// --- Wrapping text in an XML template for loading into the control's buffer ---
-void TxtCtl::ApplyXmlTemplate(wxString& plain_text)
-{
-    std::string plain_utf8 = to_utf8(plain_text);
-    plain_utf8 = replace_placeholder(plain_utf8, "\n", tpl_NewRow);
-    const std::string xml_utf8 = replace_placeholder(tpl_Body, "%CONTENT%", plain_utf8);
-    PushXmlData(wxString::FromUTF8(xml_utf8.c_str()));
-}
- 
 // --- Load files with any formats ---
 void TxtCtl::LoadFile(const wxString filePath)
 {
@@ -169,7 +170,8 @@ void TxtCtl::LoadPlainFile(const wxString filePath)
     if (!isFileExist(filePath)) return;
     wxString plain_text;
     load_file_content(filePath, plain_text);
-    ApplyXmlTemplate(plain_text);
+    NewDocument();
+    this->WriteText(plain_text);
 }
 
 // --- Load the XML content from a file ---
@@ -181,32 +183,251 @@ void TxtCtl::LoadXmlFile(const wxString filePath)
     PushXmlData(xml_content);
 }
 
-// --- Load from the Markdown file text on ACT ---
+// --- Load the Markdown file text ---
 void TxtCtl::LoadMdFile(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
     wxString plain_text;
     load_file_content(filePath, plain_text);
-
-    const wxScopedCharBuffer utf8 = plain_text.ToUTF8();
-    const char *mdUtf8 = utf8.data() ? utf8.data() : "";
-    
-    cmark_node *buffer = cmark_parse_document(mdUtf8, strlen(mdUtf8), CMARK_OPT_SOURCEPOS);
-    if (!buffer)
-    { 
-        wxLogWarning(_("Parse error in file '%s'."), filePath.wc_str());
-        return; 
+    cmark_node* node = cmark_parse_document(plain_text.c_str(), plain_text.size(),
+                                CMARK_OPT_DEFAULT|CMARK_OPT_VALIDATE_UTF8);
+    if (!node) {
+        wxLogError(_("Error parsing file '%s'."), filePath.wc_str());
+        node = nullptr;
     }
-
-    std::ostringstream oss;
-    process_node(buffer, oss);
-    cmark_node_free(buffer);
-
-    const std::string xml_utf8 = replace_placeholder(tpl_header, "%CONTENT%", oss.str());
-    
-    PushXmlData(wxString::FromUTF8(xml_utf8.c_str()));
+    MdNodeLoader(node);
+    cmark_node_free(node);
 }
 
+// ---------------------------------------------
+
+void TxtCtl::next_row(cmark_node* n) {
+    this->row++;
+    this->WriteText(this->row + ": ");
+
+    int s = cmark_node_get_start_line(n);
+    if(s > this->row) blank_row(s - this->row);
+}
+
+void TxtCtl::blank_row(int count) {
+    for (int i = 0; i < count; i++) {
+        this->WriteText("--- --- ---\n");
+        next_row(NULL);
+    }
+}
+
+// Содержимое текстовых узлов, code, html_inline и т.д.
+void TxtCtl::show_literal(cmark_node* n) {
+    const char* lit = cmark_node_get_literal(n);
+    if (lit && *lit) {
+        this->WriteText(std::string(lit) + "\n");
+    }
+}
+
+void TxtCtl::MdNodeNone() {
+    this->WriteText("ERROR: Not found node\n");
+}
+
+void TxtCtl::MdNodeDocument(cmark_node* n) {
+    NewDocument();
+}
+
+void TxtCtl::MdNodeBlockQuote(cmark_node* n) {
+    this->WriteText("Block quote\n");
+}
+
+void TxtCtl::MdNodeList(cmark_node* n) {
+    this->WriteText("List\n");
+}
+
+void TxtCtl::MdNodeItem(cmark_node* n) {
+    this->WriteText("Item\n");
+}
+
+void TxtCtl::MdNodeCodeBlock(cmark_node* n) {
+  next_row(n);
+  this->WriteText("``` START code block");
+  const char* info = cmark_node_get_fence_info(n); // язык/инфо
+  if (info && *info) this->WriteText(" \"" + std::string(info) + "\"");
+  this->WriteText("\n");
+  const char* lit = cmark_node_get_literal(n);
+  if (lit && *lit) {
+    // выводим каждую строку тела с дополнительным отступом
+    std::istringstream ss(lit);
+    std::string line;
+    while (std::getline(ss, line)) {
+      next_row(n);
+      this->WriteText(line + "\n");
+    }
+    next_row(n);
+    this->WriteText("``` End code block.\n");
+  }
+}
+
+void TxtCtl::MdNodeHtmlBlock(cmark_node* n) {
+    next_row(n);
+    this->WriteText("HTML block\n");
+}
+void TxtCtl::MdNodeCustomBlock(cmark_node* n) {
+    next_row(n);
+    this->WriteText("Custom block\n");
+}
+void TxtCtl::MdNodeParagraph(cmark_node* n) {
+    next_row(n);
+    this->WriteText("Paragraph: ");
+}
+void TxtCtl::MdNodeHeading(cmark_node* n) {
+    next_row(n);
+    this->WriteText("Heading_");
+    int level = cmark_node_get_heading_level(n);
+    this->WriteText(std::to_string(level) + ": ");
+
+    // Текст заголовка — в первой дочерней текстовой ноде
+    //cmark_node* d = cmark_node_first_child(n);
+    //show_literal(d);
+}
+void TxtCtl::MdNodeThematicBreak(cmark_node* n) {
+    next_row(n);
+    this->WriteText("Thematic break\n");
+}
+void TxtCtl::MdNodeText(cmark_node* n) {
+    this->WriteText("Text: ");
+    show_literal(n);
+}
+void TxtCtl::MdNodeSoftbreak(cmark_node* n) {
+    next_row(n);
+    // У softbreak нет номеров строк
+    this->WriteText("Softbreak: ");
+}
+void TxtCtl::MdNodeLinebreak(cmark_node* n) {
+    this->WriteText("Linebreak\n");
+}
+void TxtCtl::MdNodeCode(cmark_node* n) {
+    this->WriteText("CodeL: " + std::string(cmark_node_get_literal(n)) + "\n");
+}
+void TxtCtl::MdNodeHtmlInline(cmark_node* n) {
+    this->WriteText("HTML inline\n");
+}
+void TxtCtl::MdNodeCustomInline(cmark_node* n) {
+    this->WriteText("Custom inline\n");
+}
+void TxtCtl::MdNodeEmph(cmark_node* n) {
+    this->WriteText("Emph: ");
+    //n = cmark_node_first_child(n);
+    //show_literal(n);
+}
+void TxtCtl::MdNodeStrong(cmark_node* n) {
+    this->WriteText("Strong: ");
+    //n = cmark_node_first_child(n);
+    //show_literal(n);
+}
+void TxtCtl::MdNodeLink(cmark_node* n) {
+    this->WriteText("Link\n");
+    const char* url = cmark_node_get_url(n);
+    if (url && *url) {
+        this->WriteText("URL: " + std::string(url) + "\n");
+    }
+    const char* title = cmark_node_get_title(n);
+    if (title && *title) {
+        this->WriteText("Title: " + std::string(title) + "\n");
+    }
+}
+void TxtCtl::MdNodeImage(cmark_node* n) {
+    this->WriteText("Image\n");
+}
+void TxtCtl::MdNodeUnknown(cmark_node* n) {
+    this->WriteText("Unknown\n");
+}
+
+// ---------------------------------------------
+
+
+void TxtCtl::MdNodeLoader(cmark_node* n)
+{
+    if (!n) return;
+
+      cmark_node_type t = cmark_node_get_type(n);
+    
+  switch (t) {
+  case CMARK_NODE_NONE:
+    MdNodeNone();
+    break;
+  // -- Block nodes --
+  case CMARK_NODE_DOCUMENT:
+    MdNodeDocument(n);
+    break;
+  case CMARK_NODE_BLOCK_QUOTE:
+    MdNodeBlockQuote(n);
+    break;
+  case CMARK_NODE_LIST:
+    MdNodeList(n);
+    break;
+  case CMARK_NODE_ITEM:
+    MdNodeItem(n);
+    break;
+  case CMARK_NODE_CODE_BLOCK:
+    MdNodeCodeBlock(n);
+    break;
+  case CMARK_NODE_HTML_BLOCK:
+    MdNodeHtmlBlock(n);
+    break;
+  case CMARK_NODE_CUSTOM_BLOCK:
+    MdNodeCustomBlock(n);
+    break;
+  case CMARK_NODE_PARAGRAPH:
+    MdNodeParagraph(n);
+    break;
+  case CMARK_NODE_HEADING:
+    MdNodeHeading(n);
+    break;
+  case CMARK_NODE_THEMATIC_BREAK:
+    MdNodeThematicBreak(n);
+    break;
+  // -- Inline nodes --
+  case CMARK_NODE_TEXT:
+    MdNodeText(n);
+    break;
+  case CMARK_NODE_SOFTBREAK:
+    MdNodeSoftbreak(n);
+    break;
+  case CMARK_NODE_LINEBREAK:
+    MdNodeLinebreak(n);
+    break;
+  case CMARK_NODE_CODE:
+    MdNodeCode(n);
+    break;
+  case CMARK_NODE_HTML_INLINE:
+    MdNodeHtmlInline(n);
+    break;
+  case CMARK_NODE_CUSTOM_INLINE:
+    MdNodeCustomInline(n);
+    break;
+  case CMARK_NODE_EMPH:
+    MdNodeEmph(n);
+    break;
+  case CMARK_NODE_STRONG:
+    MdNodeStrong(n);
+    break;
+  case CMARK_NODE_LINK:
+    MdNodeLink(n);
+    break;
+  case CMARK_NODE_IMAGE:
+    MdNodeImage(n);
+    break;
+  default:
+    MdNodeUnknown(n);
+    break;
+  }
+
+    // Рекурсивный обход
+    cmark_node* child = cmark_node_first_child(n);
+    while (child) {
+        cmark_node* n = child;
+        MdNodeLoader(n);
+        child = cmark_node_next(child);
+    }
+
+}
 
 wxMenu* TxtCtl::EditMenu()
 {

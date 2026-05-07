@@ -1,6 +1,4 @@
-// For compilers that support precompilation, includes "wx/wx.h".
 #include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
 #endif
@@ -27,7 +25,7 @@ bool MyApp::OnInit()
     int x = screenWidth/2 - win_width/2;
     int y = screenHeight/2 - win_height/2 - 120;
 
-    AppFrame* frame = new AppFrame("Rich Text Editor", x, y, win_width, win_height);
+    AppFrame* frame = new AppFrame("Hyper Markdown Book", x, y, win_width, win_height);
     frame->Show(true);
 
     return true;

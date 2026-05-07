@@ -113,23 +113,18 @@ if(MDBOOK_NEEDS_CMARK)
 endif()
 
 if(MDBOOK_BUILD_APP)
-    configure_file(resources/app.rc.in ${CMAKE_BINARY_DIR}/app.rc COPYONLY)
-    set_source_files_properties("${CMAKE_BINARY_DIR}/app.rc" PROPERTIES
-        COMPILE_FLAGS "-I${wxwidgets_SOURCE_DIR}/include"
+    # Ресурсный файл Windows (манифест, DPI и пр.)
+    enable_language(RC)
+    configure_file(
+        ${CMAKE_SOURCE_DIR}/resources/app.rc.in
+        ${CMAKE_BINARY_DIR}/app.rc
+        COPYONLY
     )
-
-    set(SOURCE "${CMAKE_BINARY_DIR}/app.rc"
-       "src/main.cpp"
-       "src/app_frame.h"
-       "src/app_frame.cpp"
-       "src/txt_ctl.h"
-       "src/txt_ctl.cpp"
-       "src/md_parser.h"
-        "src/md_parser.cpp"
-    )
+    set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} -I\"${wxwidgets_SOURCE_DIR}/include\"")
 
     # Сборка приложения
-    add_executable(${MyAPP} ${SOURCE})
+    AUX_SOURCE_DIRECTORY("src" SOURCE)
+    add_executable(${MyAPP} ${SOURCE} ${CMAKE_BINARY_DIR}/app.rc)
     target_compile_definitions(${MyAPP} PRIVATE WXUSINGDLL __WXMSW__)
     target_link_options(${MyAPP} PRIVATE -mwindows -Wl,-subsystem,windows)
     target_link_libraries(${MyAPP} PRIVATE wxWidgets::wxWidgets cmark)

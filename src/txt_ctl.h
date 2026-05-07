@@ -13,6 +13,10 @@ Related Classes (https://docs.wxwidgets.org/stable/overview_richtextctrl.html):
 #pragma once
 #include "wx/richtext/richtextctrl.h"
 
+extern "C" {
+#include "cmark.h"
+}
+
 class wxMenu;
 class wxCommandEvent;
 
@@ -45,8 +49,38 @@ public:
 
 private:
     wxRichTextAttr plainStyle;
-    void ApplyXmlTemplate(wxString& palain_text);
+    int row;
+    
+    void NewDocument();
     void PushXmlData(const wxString& xml_data);
+    void MdNodeLoader(cmark_node* node);
+
+    void next_row(cmark_node* n);
+    void blank_row(int count);
+    void show_literal(cmark_node* n);
+
+    void MdNodeNone();
+    void MdNodeDocument(cmark_node* n);
+    void MdNodeBlockQuote(cmark_node* n);
+    void MdNodeList(cmark_node* n);
+    void MdNodeItem(cmark_node* n);
+    void MdNodeCodeBlock(cmark_node* n);
+    void MdNodeHtmlBlock(cmark_node* n);
+    void MdNodeCustomBlock(cmark_node* n);
+    void MdNodeParagraph(cmark_node* n);
+    void MdNodeHeading(cmark_node* n);
+    void MdNodeThematicBreak(cmark_node* n);
+    void MdNodeText(cmark_node* n);
+    void MdNodeSoftbreak(cmark_node* n);
+    void MdNodeLinebreak(cmark_node* n);
+    void MdNodeCode(cmark_node* n);
+    void MdNodeHtmlInline(cmark_node* n);
+    void MdNodeCustomInline(cmark_node* n);
+    void MdNodeEmph(cmark_node* n);
+    void MdNodeStrong(cmark_node* n);
+    void MdNodeLink(cmark_node* n);
+    void MdNodeImage(cmark_node* n);
+    void MdNodeUnknown(cmark_node* n);
 
     void OnChangeFont(wxCommandEvent& WXUNUSED(event));
     void OnLeftAlign(wxCommandEvent& event);
