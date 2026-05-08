@@ -36,7 +36,7 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     fileMenu->Append(APP_CLOSE, _("Exit\tCtrl+W"));
     Bind(wxEVT_MENU, &AppFrame::OnClose, this, APP_CLOSE);
     
-    wxMenu* editMenu = txt_ctl->EditMenu();
+    wxMenu* editMenu = txt_ctl->edit_menu();
     
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(fileMenu, _("File"));
@@ -71,7 +71,7 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
 
     if (openFileDialog.ShowModal() == wxID_CANCEL) return;
     auto filepath = openFileDialog.GetPath();
-    txt_ctl->LoadFile(filepath);
+    txt_ctl->load_file(filepath);
 }
 
 
@@ -92,8 +92,8 @@ void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
     
     const wxString filePath = fileName.GetFullPath();
 
-    if (fileType == 0) txt_ctl->SavePlainFile(filePath);
-    if (fileType == 1) txt_ctl->SaveXmlFile(filePath);
+    if (fileType == 0) txt_ctl->save_plain_file(filePath);
+    if (fileType == 1) txt_ctl->save_xml_file(filePath);
 }
 
 

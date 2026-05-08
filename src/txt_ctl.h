@@ -42,49 +42,50 @@ class TxtCtl: public wxRichTextCtrl
 {
 public:
     TxtCtl(wxWindow* parent);
-    wxMenu* EditMenu();
-    void LoadFile(const wxString filePath);
-    void SavePlainFile(const wxString filePath);
-    void SaveXmlFile(const wxString filePath);
+    wxMenu* edit_menu();
+    void load_file(const wxString filePath);
+    void save_plain_file(const wxString filePath);
+    void save_xml_file(const wxString filePath);
 
 private:
-    wxRichTextAttr plainStyle;
+    wxRichTextAttr plain_style;
     int row;
+    cmark_node* node_current;
     
-    void NewDocument();
-    void PushXmlData(const wxString& xml_data);
-    void MdNodeLoader(cmark_node* node);
+    void new_document();
+    void push_xml_data(const wxString& xml_data);
+    void md_node_deploy();
 
     void next_row(cmark_node* n);
     void blank_row(int count);
     void show_literal(cmark_node* n);
 
-    void MdNodeNone();
-    void MdNodeDocument(cmark_node* n);
-    void MdNodeBlockQuote(cmark_node* n);
-    void MdNodeList(cmark_node* n);
-    void MdNodeItem(cmark_node* n);
-    void MdNodeCodeBlock(cmark_node* n);
-    void MdNodeHtmlBlock(cmark_node* n);
-    void MdNodeCustomBlock(cmark_node* n);
-    void MdNodeParagraph(cmark_node* n);
-    void MdNodeHeading(cmark_node* n);
-    void MdNodeThematicBreak(cmark_node* n);
-    void MdNodeText(cmark_node* n);
-    void MdNodeSoftbreak(cmark_node* n);
-    void MdNodeLinebreak(cmark_node* n);
-    void MdNodeCode(cmark_node* n);
-    void MdNodeHtmlInline(cmark_node* n);
-    void MdNodeCustomInline(cmark_node* n);
-    void MdNodeEmph(cmark_node* n);
-    void MdNodeStrong(cmark_node* n);
-    void MdNodeLink(cmark_node* n);
-    void MdNodeImage(cmark_node* n);
-    void MdNodeUnknown(cmark_node* n);
+    void md_none();
+    void md_document(cmark_node* n);
+    void md_blockquote(cmark_node* n);
+    void md_list(cmark_node* n);
+    void md_item(cmark_node* n);
+    void md_code_block(cmark_node* n);
+    void md_html_block(cmark_node* n);
+    void md_custom_block(cmark_node* n);
+    void md_paragraph();
+    void md_header();
+    void md_thematic_break(cmark_node* n);
+    void md_text(cmark_node* n);
+    void md_softbreak(cmark_node* n);
+    void md_linebreak(cmark_node* n);
+    void md_code();
+    void md_html_inline(cmark_node* n);
+    void md_custom_inline(cmark_node* n);
+    void md_emph();
+    void md_strong(cmark_node* n);
+    void md_link(cmark_node* n);
+    void md_image(cmark_node* n);
+    void md_unknown(cmark_node* n);
 
-    void OnChangeFont(wxCommandEvent& WXUNUSED(event));
-    void OnLeftAlign(wxCommandEvent& event);
-    void OnRightAlign(wxCommandEvent& event);
+    void on_change_font(wxCommandEvent& WXUNUSED(event));
+    void on_left_align(wxCommandEvent& event);
+    void on_right_align(wxCommandEvent& event);
     void OnJustify(wxCommandEvent& event);
     void OnCentre(wxCommandEvent& event);
     void OnChangeTextColour(wxCommandEvent& event);
@@ -92,8 +93,8 @@ private:
     void OnLeftIndent(wxCommandEvent& event);
     void OnRightIndent(wxCommandEvent& event);
     void OnTabStops(wxCommandEvent& event);
-    void LoadXMLHandler();
-    void LoadXmlFile(const wxString filePath);
-    void LoadMdFile(const wxString filePath);
-    void LoadPlainFile(const wxString filePath);
+    void load_xml_handler();
+    void load_xml_file(const wxString filePath);
+    void load_md_file(const wxString filePath);
+    void load_plain_file(const wxString filePath);
 };
