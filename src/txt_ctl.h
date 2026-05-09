@@ -70,7 +70,6 @@ private:
     void md_header();
     void md_thematic_break(cmark_node* n);
     void md_text(cmark_node* n);
-    void md_linebreak(cmark_node* n);
     void md_code();
     void md_html_inline(cmark_node* n);
     void md_custom_inline(cmark_node* n);

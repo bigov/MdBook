@@ -172,11 +172,12 @@ void TxtCtl::load_md_file(const wxString filePath)
     if (!isFileExist(filePath)) return;
     wxString plain_text;
     load_file_content(filePath, plain_text);
-    cmark_node* node = cmark_parse_document(plain_text.c_str(), plain_text.size(),
-                                CMARK_OPT_DEFAULT|CMARK_OPT_VALIDATE_UTF8);
+    cmark_node* node = cmark_parse_document(plain_text.c_str(),
+         plain_text.size(), CMARK_OPT_DEFAULT);
     if (!node) {
         wxLogError(_("Error parsing file '%s'."), filePath.wc_str());
         node = nullptr;
+        return;
     }
     node_current = node;
     deploy_md_node();
@@ -189,6 +190,7 @@ void TxtCtl::load_plain_file(const wxString filePath)
     if (!isFileExist(filePath)) return;
     wxString plain_text;
     load_file_content(filePath, plain_text);
+
     new_document();
     this->WriteText(plain_text);
 }
@@ -245,17 +247,17 @@ void TxtCtl::md_code_block() {
   this->WriteText(" --- --- --- ");
   WriteText(cmark_node_get_fence_info(this->node_current));
   this->WriteText(" --- --- --- ");
-  next_line();
   // Многострочный литерал
   const char* lit = cmark_node_get_literal(this->node_current);
   if (lit && *lit) {
     std::istringstream ss(lit);
     std::string line;
-    // Вывести построчно
+    // Вывести построчно c подсчетом числа строк
     while (std::getline(ss, line)) {
-      this->WriteText(line);
       next_line();
+      this->WriteText(line);
     }
+    next_line();
     this->WriteText(" --- --- --- ");
   }
 }
@@ -286,10 +288,6 @@ void TxtCtl::md_text(cmark_node* n) {
     show_literal(n);
 }
 
-void TxtCtl::md_linebreak(cmark_node* n) {
-    Newline();
-    this->WriteText("Linebreak\n");
-}
 void TxtCtl::md_code() {
     this->BeginBold();
     this->WriteText("'");
@@ -391,8 +389,7 @@ void TxtCtl::deploy_md_node()
     next_line();
     break;
   case CMARK_NODE_LINEBREAK:
-    this->row_current++;
-    md_linebreak(node_current);
+    next_line();
     break;
   case CMARK_NODE_CODE:
     md_code();
