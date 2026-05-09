@@ -49,30 +49,27 @@ public:
 
 private:
     wxRichTextAttr plain_style;
-    int row;
+    int row_current;
     cmark_node* node_current;
     
     void new_document();
     void push_xml_data(const wxString& xml_data);
-    void md_node_deploy();
+    void deploy_md_node();
 
-    void next_row(cmark_node* n);
-    void blank_row(int count);
+    void next_line();
+    void row_check();
     void show_literal(cmark_node* n);
 
     void md_none();
-    void md_document(cmark_node* n);
     void md_blockquote(cmark_node* n);
     void md_list(cmark_node* n);
     void md_item(cmark_node* n);
-    void md_code_block(cmark_node* n);
+    void md_code_block();
     void md_html_block(cmark_node* n);
     void md_custom_block(cmark_node* n);
-    void md_paragraph();
     void md_header();
     void md_thematic_break(cmark_node* n);
     void md_text(cmark_node* n);
-    void md_softbreak(cmark_node* n);
     void md_linebreak(cmark_node* n);
     void md_code();
     void md_html_inline(cmark_node* n);

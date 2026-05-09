@@ -126,7 +126,8 @@ if(MDBOOK_BUILD_APP)
     AUX_SOURCE_DIRECTORY("src" SOURCE)
     add_executable(${MyAPP} ${SOURCE} ${CMAKE_BINARY_DIR}/app.rc)
     target_compile_definitions(${MyAPP} PRIVATE WXUSINGDLL __WXMSW__)
-    target_link_options(${MyAPP} PRIVATE -mwindows -Wl,-subsystem,windows)
+    # Скрыть консоль
+    #target_link_options(${MyAPP} PRIVATE -mwindows -Wl,-subsystem,windows)
     target_link_libraries(${MyAPP} PRIVATE wxWidgets::wxWidgets cmark)
 
     # Добавление .dll библиотеки в каталог запуска

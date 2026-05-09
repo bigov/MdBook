@@ -98,7 +98,7 @@ void TxtCtl::new_document()
     this->SetAndShowDefaultStyle(this->plain_style);
     this->SetMargins(6, 4);
     this->SetInsertionPoint(0);
-    this->row = 0;
+    this->row_current = 0;
 }
 
 void TxtCtl::load_xml_handler()
@@ -179,7 +179,7 @@ void TxtCtl::load_md_file(const wxString filePath)
         node = nullptr;
     }
     node_current = node;
-    md_node_deploy();
+    deploy_md_node();
     cmark_node_free(node);
 }
 
@@ -202,16 +202,19 @@ void TxtCtl::load_xml_file(const wxString filePath)
     push_xml_data(xml_content);
 }
 
-// ---------------------------------------------
-
-void TxtCtl::next_row(cmark_node* n) {
-    int s = cmark_node_get_start_line(n);
-    if(s > this->row) blank_row(s - this->row);
+// Переход на следующую строку.
+void TxtCtl::next_line() {
+    this->row_current++;
+    //В начале документа новый абзац не создавать (уже есть).
+    if(this->row_current > 1) Newline();
+    row_check();
 }
 
-void TxtCtl::blank_row(int count) {
-    for (int i = 0; i < count; i++) {
-        this->row++;
+void TxtCtl::row_check() {
+    int row_node_start = cmark_node_get_start_line(this->node_current);
+    while (row_node_start > this->row_current)
+    {
+        this->row_current++;
         Newline();
     }
 }
@@ -226,10 +229,6 @@ void TxtCtl::md_none() {
     this->WriteText("ERROR: Not found node\n");
 }
 
-void TxtCtl::md_document(cmark_node* n) {
-    new_document();
-}
-
 void TxtCtl::md_blockquote(cmark_node* n) {
     this->WriteText("Block quote\n");
 }
@@ -242,45 +241,38 @@ void TxtCtl::md_item(cmark_node* n) {
     this->WriteText("Item\n");
 }
 
-void TxtCtl::md_code_block(cmark_node* n) {
-  next_row(n);
-  this->WriteText("``` START code block");
-  const char* info = cmark_node_get_fence_info(n); // язык/инфо
-  if (info && *info) this->WriteText(" \"" + std::string(info) + "\"");
-  this->WriteText("\n");
-  const char* lit = cmark_node_get_literal(n);
+void TxtCtl::md_code_block() {
+  this->WriteText(" --- --- --- ");
+  WriteText(cmark_node_get_fence_info(this->node_current));
+  this->WriteText(" --- --- --- ");
+  next_line();
+  // Многострочный литерал
+  const char* lit = cmark_node_get_literal(this->node_current);
   if (lit && *lit) {
-    // выводим каждую строку тела с дополнительным отступом
     std::istringstream ss(lit);
     std::string line;
+    // Вывести построчно
     while (std::getline(ss, line)) {
-      next_row(n);
-      this->WriteText(line + "\n");
+      this->WriteText(line);
+      next_line();
     }
-    next_row(n);
-    this->WriteText("``` End code block");
+    this->WriteText(" --- --- --- ");
   }
 }
 
 void TxtCtl::md_html_block(cmark_node* n) {
-    next_row(n);
     this->WriteText("HTML block\n");
 }
 void TxtCtl::md_custom_block(cmark_node* n) {
-    next_row(n);
     this->WriteText("Custom block\n");
 }
-void TxtCtl::md_paragraph() {
-    this->Newline();
-    next_row(this->node_current);
-    this->WriteText( "{P.r:" + std::to_string(this->row) + "}");
-}
+
 void TxtCtl::md_header() {
-    next_row(this->node_current);
+    // Размер заголовка
     int font_size = 16 - cmark_node_get_heading_level(this->node_current);
     this->BeginFontSize(font_size);
     this->BeginBold();
-    this->WriteText( "{H.r:" + std::to_string(this->row) + "}");
+
     // Текст заголовка — в первой дочерней текстовой ноде
     this->node_current = cmark_node_first_child(this->node_current);
     show_literal(this->node_current);
@@ -288,18 +280,14 @@ void TxtCtl::md_header() {
     this->EndBold();
 }
 void TxtCtl::md_thematic_break(cmark_node* n) {
-    next_row(n);
     this->WriteText("Thematic break\n");
 }
 void TxtCtl::md_text(cmark_node* n) {
     show_literal(n);
 }
-void TxtCtl::md_softbreak(cmark_node* n) {
-    next_row(n);
-    this->WriteText("[SB->]");
-    Newline();
-}
+
 void TxtCtl::md_linebreak(cmark_node* n) {
+    Newline();
     this->WriteText("Linebreak\n");
 }
 void TxtCtl::md_code() {
@@ -347,7 +335,7 @@ void TxtCtl::md_unknown(cmark_node* n) {
 // ---------------------------------------------
 
 
-void TxtCtl::md_node_deploy()
+void TxtCtl::deploy_md_node()
 {
   if (!node_current) return;
   cmark_node_type t = cmark_node_get_type(node_current);
@@ -358,33 +346,41 @@ void TxtCtl::md_node_deploy()
     break;
   // -- Block nodes --
   case CMARK_NODE_DOCUMENT:
-    md_document(node_current);
+    new_document();
+    break;
+  case CMARK_NODE_HEADING:
+    next_line();
+    md_header();
+    break;
+  case CMARK_NODE_PARAGRAPH:
+    next_line();
     break;
   case CMARK_NODE_BLOCK_QUOTE:
+    next_line();
     md_blockquote(node_current);
     break;
   case CMARK_NODE_LIST:
+    next_line();
     md_list(node_current);
     break;
   case CMARK_NODE_ITEM:
+    next_line();
     md_item(node_current);
     break;
   case CMARK_NODE_CODE_BLOCK:
-    md_code_block(node_current);
+    next_line();
+    md_code_block();
     break;
   case CMARK_NODE_HTML_BLOCK:
+    next_line();
     md_html_block(node_current);
     break;
   case CMARK_NODE_CUSTOM_BLOCK:
+    next_line();
     md_custom_block(node_current);
     break;
-  case CMARK_NODE_PARAGRAPH:
-    md_paragraph();
-    break;
-  case CMARK_NODE_HEADING:
-    md_header();
-    break;
   case CMARK_NODE_THEMATIC_BREAK:
+    next_line();
     md_thematic_break(node_current);
     break;
   // -- Inline nodes --
@@ -392,9 +388,10 @@ void TxtCtl::md_node_deploy()
     md_text(node_current);
     break;
   case CMARK_NODE_SOFTBREAK:
-    md_softbreak(node_current);
+    next_line();
     break;
   case CMARK_NODE_LINEBREAK:
+    this->row_current++;
     md_linebreak(node_current);
     break;
   case CMARK_NODE_CODE:
@@ -427,7 +424,7 @@ void TxtCtl::md_node_deploy()
     cmark_node* child = cmark_node_first_child(node_current);
     while (child) {
         this->node_current = child;
-        md_node_deploy();
+        deploy_md_node();
         child = cmark_node_next(child);
     }
 

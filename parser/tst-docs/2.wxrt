@@ -3,7 +3,12 @@
   <paragraphlayout textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial" alignment="1" margin-left="6,4098" margin-right="6,4098" margin-top="4,4098" margin-bottom="4,4098">
     <paragraph>
       <text fontpointsize="15" fontweight="700">Title 1</text>
-      <text>{2}000 During in 2016, he was diagnosed with a sprai 000[SB-&gt;]</text>
+    </paragraph>
+    <paragraph>
+      <text></text>
+    </paragraph>
+    <paragraph>
+      <text>000 During in 2016, he was diagnosed with a sprai 000</text>
     </paragraph>
     <paragraph>
       <text>001 until mid-June. He pitched out of the bullpen 001</text>
@@ -12,11 +17,11 @@
       <text></text>
     </paragraph>
     <paragraph>
-      <text>"{6}002 Cincinnaty at "</text>
+      <text>"002 Cincinnaty at "</text>
       <text fontweight="700">'uponulnar collateral ligament'</text>
       <text>" in his right elbow, and "</text>
       <text fontstyle="93">he did</text>
-      <text>" stop it 002[SB-&gt;]"</text>
+      <text>" stop it 002"</text>
     </paragraph>
     <paragraph>
       <text>003 his return, and he finished the year with a 2&#1087;&#1111;&#1029;1 record and 003</text>
@@ -25,16 +30,25 @@
       <text></text>
     </paragraph>
     <paragraph>
+      <text></text>
+    </paragraph>
+    <paragraph>
       <text fontpointsize="14" fontweight="700">&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;2 &#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;</text>
     </paragraph>
     <paragraph>
-      <text>{12}007 Lorenzen was called up to pinch-hit in 007</text>
+      <text></text>
     </paragraph>
     <paragraph>
-      <text>"``` START code block "</text>
-      <symbol>34</symbol>
-      <text>cpp</text>
-      <symbol>34</symbol>
+      <text>007 Lorenzen was called up to pinch-hit in 007</text>
+    </paragraph>
+    <paragraph>
+      <text></text>
+    </paragraph>
+    <paragraph>
+      <text>" --- --- --- cpp --- --- --- "</text>
+    </paragraph>
+    <paragraph>
+      <text>##</text>
     </paragraph>
     <paragraph>
       <text>int main() {</text>
@@ -51,22 +65,30 @@
       <text>}</text>
     </paragraph>
     <paragraph>
-      <text>``` End code block</text>
+      <text>##</text>
     </paragraph>
     <paragraph>
-      <text>{21}020 until mid-June. He pitched out of the bullpen 020</text>
+      <text>int main() {</text>
+    </paragraph>
+    <paragraph>
+      <symbol>9</symbol>
+      <text>int r = 0;</text>
+    </paragraph>
+    <paragraph>
+      <symbol>9</symbol>
+      <text>return r;</text>
+    </paragraph>
+    <paragraph>
+      <text>}</text>
+    </paragraph>
+    <paragraph>
+      <text>" --- --- --- "</text>
     </paragraph>
     <paragraph>
       <text></text>
     </paragraph>
     <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text></text>
+      <text>020 until mid-June. He pitched out of the bullpen 020</text>
     </paragraph>
   </paragraphlayout>
 </richtext>
