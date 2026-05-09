@@ -87,6 +87,9 @@ TxtCtl::TxtCtl(wxWindow* parent)
     this->plain_style.SetTextColour(base_fg_color);
     this->plain_style.SetBackgroundColour(base_bg_color);
 
+    this->row_current = 0;
+    this->row_total = 0;
+    this->node_current = nullptr;
     new_document();
 }
 
@@ -98,7 +101,6 @@ void TxtCtl::new_document()
     this->SetAndShowDefaultStyle(this->plain_style);
     this->SetMargins(6, 4);
     this->SetInsertionPoint(0);
-    this->row_current = 0;
 }
 
 void TxtCtl::load_xml_handler()
@@ -181,6 +183,10 @@ void TxtCtl::load_md_file(const wxString filePath)
     }
     node_current = node;
     deploy_md_node();
+    // Дополнить пустые строки до конца документа.
+    while (this->row_current < this->row_total) {
+        next_line();
+    }
     cmark_node_free(node);
 }
 
@@ -345,6 +351,7 @@ void TxtCtl::deploy_md_node()
   // -- Block nodes --
   case CMARK_NODE_DOCUMENT:
     new_document();
+    this->row_total = cmark_node_get_end_line(this->node_current);
     break;
   case CMARK_NODE_HEADING:
     next_line();
@@ -424,7 +431,6 @@ void TxtCtl::deploy_md_node()
         deploy_md_node();
         child = cmark_node_next(child);
     }
-
 }
 
 wxMenu* TxtCtl::edit_menu()

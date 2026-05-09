@@ -50,6 +50,7 @@ public:
 private:
     wxRichTextAttr plain_style;
     int row_current;
+    int row_total;
     cmark_node* node_current;
     
     void new_document();
