@@ -34,7 +34,6 @@ set(MyApp_VERSION_MINOR 1)
 
 option(MDBOOK_BUILD_APP "Build GUI app target mdbook" ON)
 option(MDBOOK_BUILD_TESTS "Build app tests" OFF)
-option(MDBOOK_BUILD_PARSER_TOOL "Build utility parser" OFF)
 
 set(MDBOOK_DEPS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/.deps-src" CACHE PATH
   "Shared directory for downloaded third-party sources")
@@ -44,10 +43,6 @@ set(MDBOOK_NEEDS_CMARK OFF)
 
 if(MDBOOK_BUILD_APP OR MDBOOK_BUILD_TESTS)
     set(MDBOOK_NEEDS_WX ON)
-    set(MDBOOK_NEEDS_CMARK ON)
-endif()
-
-if(MDBOOK_BUILD_PARSER_TOOL)
     set(MDBOOK_NEEDS_CMARK ON)
 endif()
 
@@ -146,6 +141,3 @@ if(MDBOOK_BUILD_TESTS)
   include(${CMAKE_SOURCE_DIR}/tests/tests_targets.cmake)
 endif()
 
-if(MDBOOK_BUILD_PARSER_TOOL)
-  include(${CMAKE_SOURCE_DIR}/parser/parser_tool.cmake)
-endif()

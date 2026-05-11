@@ -80,6 +80,10 @@ TxtCtl::TxtCtl(wxWindow* parent)
          | wxTEXT_ATTR_BACKGROUND_COLOUR | wxTEXT_ATTR_ALIGNMENT);
     this->style_base.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
 
+    this->style_urls.SetFlags(wxTEXT_ATTR_FONT
+         | wxTEXT_ATTR_TEXT_COLOUR
+         | wxTEXT_ATTR_BACKGROUND_COLOUR);
+
     wxFont base_font = wxFont(11, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     wxColor color_base_fg = "#444444";
     wxColor color_urls_fg = "#25A4D1"; 
@@ -88,17 +92,17 @@ TxtCtl::TxtCtl(wxWindow* parent)
     this->style_base.SetFont(base_font);
     this->style_base.SetTextColour(color_base_fg);
     this->style_base.SetBackgroundColour(color_base_bg);
+    this->style_base.SetFontWeight(wxFONTWEIGHT_NORMAL);
 
-    //this->style_urls = this->style_base;
     this->style_urls.SetTextColour(color_urls_fg);
     this->style_urls.SetFontUnderlined(true);
-    auto* linkStyle = new wxRichTextCharacterStyleDefinition("style_urls");
+    auto linkStyle = std::make_unique<wxRichTextCharacterStyleDefinition>("style_urls");
     linkStyle->SetStyle(this->style_urls);
-    this->m_styleSheet->AddCharacterStyle(linkStyle);
+    this->m_styleSheet->AddCharacterStyle(linkStyle.get());
+    linkStyle.release();
+    
     this->SetStyleSheet(this->m_styleSheet.get());
 
-    this->row_current = 0;
-    this->row_total = 0;
     this->node_current = nullptr;
     new_document();
 }
@@ -108,9 +112,12 @@ void TxtCtl::new_document()
     this->Clear();
     this->SetDefaultStyle(this->style_base);
     this->SetBasicStyle(this->style_base);
+    this->GetBuffer().SetDefaultStyle(this->style_base);
     this->SetAndShowDefaultStyle(this->style_base);
     this->SetMargins(6, 4);
     this->SetInsertionPoint(0);
+    this->row_current = 0;
+    this->row_total = 0;
 }
 
 void TxtCtl::load_xml_handler()
@@ -191,17 +198,24 @@ void TxtCtl::load_md_file(const wxString filePath)
         node = nullptr;
         return;
     }
-    node_current = node;
+    this->node_current = node;
     this->BeginSuppressUndo();
-
+    // Defensive cleanup in case a previous render left style state in stack.
+    this->EndAllStyles();
     deploy_md_node();
+    this->node_current = nullptr;
     // Дополнить пустые строки до конца документа.
     while (this->row_current < this->row_total) {
         next_line();
     }
     cmark_node_free(node);
+    // Ensure no transient rendering styles survive after markdown traversal.
+    this->EndAllStyles();
     this->EndSuppressUndo();
     this->SetInsertionPoint(0);
+    this->SetDefaultStyle(this->style_base);
+    this->GetBuffer().SetDefaultStyle(this->style_base);
+    this->SetAndShowDefaultStyle(this->style_base);
 }
 
 // --- Load the plain text content from a file ---
@@ -236,6 +250,7 @@ void TxtCtl::next_line() {
 }
 
 void TxtCtl::row_check() {
+    if(this->node_current == nullptr) return;
     int row_node_start = cmark_node_get_start_line(this->node_current);
     while (row_node_start > this->row_current)
     {
@@ -301,8 +316,8 @@ void TxtCtl::md_header() {
     // Текст заголовка — в первой дочерней текстовой ноде
     this->node_current = cmark_node_first_child(this->node_current);
     show_literal(this->node_current);
-    this->EndFontSize();
     this->EndBold();
+    this->EndFontSize();
 }
 void TxtCtl::md_thematic_break(cmark_node* n) {
     this->WriteText("Thematic break\n");

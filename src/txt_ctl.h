@@ -11,6 +11,7 @@ Related Classes (https://docs.wxwidgets.org/stable/overview_richtextctrl.html):
 */
 
 #pragma once
+#include <memory>
 #include "wx/richtext/richtextctrl.h"
 
 extern "C" {
@@ -49,7 +50,7 @@ public:
 
 private:
     std::unique_ptr<wxRichTextStyleSheet> m_styleSheet;
-    wxRichTextAttr style_base;
+    wxTextAttrEx style_base;
     wxRichTextAttr style_urls;
     int row_current;
     int row_total;

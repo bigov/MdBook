@@ -23,8 +23,7 @@
       "description": "Сборка только GUI-приложения mdbook",
       "cacheVariables": {
         "MDBOOK_BUILD_APP": "ON",
-        "MDBOOK_BUILD_TESTS": "OFF",
-        "MDBOOK_BUILD_PARSER_TOOL": "OFF"
+        "MDBOOK_BUILD_TESTS": "OFF"
       }
     },
     {
@@ -34,31 +33,17 @@
       "description": "Сборка только тестовых утилит из tests",
       "cacheVariables": {
         "MDBOOK_BUILD_APP": "OFF",
-        "MDBOOK_BUILD_TESTS": "ON",
-        "MDBOOK_BUILD_PARSER_TOOL": "OFF"
-      }
-    },
-    {
-      "name": "dev-parser",
-      "inherits": "base-debug",
-      "displayName": "Dev: Parser Utility",
-      "description": "Сборка только утилиты parser из parser",
-      "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "MDBOOK_BUILD_APP": "OFF",
-        "MDBOOK_BUILD_TESTS": "OFF",
-        "MDBOOK_BUILD_PARSER_TOOL": "ON"
+        "MDBOOK_BUILD_TESTS": "ON"
       }
     },
     {
       "name": "dev-all",
       "inherits": "base-debug",
       "displayName": "Dev: All",
-      "description": "Сборка приложения, тестов и parser-утилиты",
+      "description": "Сборка приложения и тестов",
       "cacheVariables": {
         "MDBOOK_BUILD_APP": "ON",
-        "MDBOOK_BUILD_TESTS": "ON",
-        "MDBOOK_BUILD_PARSER_TOOL": "ON"
+        "MDBOOK_BUILD_TESTS": "ON"
       }
     }
   ],
@@ -70,10 +55,6 @@
     {
       "name": "build-tests",
       "configurePreset": "dev-tests"
-    },
-    {
-      "name": "build-parser",
-      "configurePreset": "dev-parser"
     },
     {
       "name": "build-all",
