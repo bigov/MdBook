@@ -73,19 +73,29 @@ TxtCtl::TxtCtl(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
                     wxVSCROLL | wxHSCROLL | wxBORDER_NONE | wxWANTS_CHARS)
 {
+    m_styleSheet = std::make_unique<wxRichTextStyleSheet>();
     node_current = nullptr;
 
-    this->plain_style.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR
+    this->style_base.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR
          | wxTEXT_ATTR_BACKGROUND_COLOUR | wxTEXT_ATTR_ALIGNMENT);
-    this->plain_style.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
+    this->style_base.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
 
     wxFont base_font = wxFont(11, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-    wxColor base_fg_color = "#444444";
-    wxColor base_bg_color = "#ffffff";
+    wxColor color_base_fg = "#444444";
+    wxColor color_urls_fg = "#25A4D1"; 
+    wxColor color_base_bg = "#ffffff";
 
-    this->plain_style.SetFont(base_font);
-    this->plain_style.SetTextColour(base_fg_color);
-    this->plain_style.SetBackgroundColour(base_bg_color);
+    this->style_base.SetFont(base_font);
+    this->style_base.SetTextColour(color_base_fg);
+    this->style_base.SetBackgroundColour(color_base_bg);
+
+    //this->style_urls = this->style_base;
+    this->style_urls.SetTextColour(color_urls_fg);
+    this->style_urls.SetFontUnderlined(true);
+    auto* linkStyle = new wxRichTextCharacterStyleDefinition("style_urls");
+    linkStyle->SetStyle(this->style_urls);
+    this->m_styleSheet->AddCharacterStyle(linkStyle);
+    this->SetStyleSheet(this->m_styleSheet.get());
 
     this->row_current = 0;
     this->row_total = 0;
@@ -96,9 +106,9 @@ TxtCtl::TxtCtl(wxWindow* parent)
 void TxtCtl::new_document()
 {
     this->Clear();
-    this->SetDefaultStyle(this->plain_style);
-    this->SetBasicStyle(this->plain_style);
-    this->SetAndShowDefaultStyle(this->plain_style);
+    this->SetDefaultStyle(this->style_base);
+    this->SetBasicStyle(this->style_base);
+    this->SetAndShowDefaultStyle(this->style_base);
     this->SetMargins(6, 4);
     this->SetInsertionPoint(0);
 }
@@ -182,12 +192,16 @@ void TxtCtl::load_md_file(const wxString filePath)
         return;
     }
     node_current = node;
+    this->BeginSuppressUndo();
+
     deploy_md_node();
     // Дополнить пустые строки до конца документа.
     while (this->row_current < this->row_total) {
         next_line();
     }
     cmark_node_free(node);
+    this->EndSuppressUndo();
+    this->SetInsertionPoint(0);
 }
 
 // --- Load the plain text content from a file ---
@@ -198,7 +212,10 @@ void TxtCtl::load_plain_file(const wxString filePath)
     load_file_content(filePath, plain_text);
 
     new_document();
+    this->BeginSuppressUndo();
     this->WriteText(plain_text);
+    this->EndSuppressUndo();
+    this->SetInsertionPoint(0);
 }
 
 // --- Load the XML content from a file ---
@@ -318,16 +335,14 @@ void TxtCtl::md_strong(cmark_node* n) {
     //n = cmark_node_first_child(n);
     //show_literal(n);
 }
-void TxtCtl::md_link(cmark_node* n) {
-    this->WriteText("Link\n");
-    const char* url = cmark_node_get_url(n);
-    if (url && *url) {
-        this->WriteText("URL: " + std::string(url) + "\n");
-    }
-    const char* title = cmark_node_get_title(n);
-    if (title && *title) {
-        this->WriteText("Title: " + std::string(title) + "\n");
-    }
+void TxtCtl::md_link() {
+    const char *url = cmark_node_get_url(this->node_current);
+    //const char *title = cmark_node_get_title(this->node_current);
+    this->node_current = cmark_node_first_child(this->node_current);
+    const char *text = cmark_node_get_literal(this->node_current);
+    this->BeginURL(url, "style_urls");
+    this->WriteText(text);
+    this->EndURL();
 }
 void TxtCtl::md_image(cmark_node* n) {
     this->WriteText("Image\n");
@@ -414,7 +429,7 @@ void TxtCtl::deploy_md_node()
     md_strong(node_current);
     break;
   case CMARK_NODE_LINK:
-    md_link(node_current);
+    md_link();
     break;
   case CMARK_NODE_IMAGE:
     md_image(node_current);

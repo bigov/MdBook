@@ -2,93 +2,26 @@
 <richtext version="1.0.0.0" xmlns="http://www.wxwidgets.org">
   <paragraphlayout textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial" alignment="1" margin-left="6,4098" margin-right="6,4098" margin-top="4,4098" margin-bottom="4,4098">
     <paragraph>
-      <text fontpointsize="15" fontweight="700">Title 1</text>
+      <text fontpointsize="15" fontweight="700">&#1054;&#1073;&#1097;&#1080;&#1081; &#1079;&#1072;&#1075;&#1086;&#1083;&#1086;&#1074;&#1086;&#1082; 001</text>
     </paragraph>
     <paragraph>
       <text></text>
     </paragraph>
     <paragraph>
-      <text>000 During in 2016, he was diagnosed with a sprai 000</text>
+      <text>003 During in 2016, he was Link</text>
     </paragraph>
     <paragraph>
-      <text>001 until mid-June. He pitched out of the bullpen 001</text>
+      <text>URL: https://www.bigov.ru</text>
     </paragraph>
     <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text>"002 Cincinnaty at "</text>
+      <text>"bigov's site with a sprai until mid-June. He pitched out of the bullpen 004 006 Cincinnaty at "</text>
       <text fontweight="700">'uponulnar collateral ligament'</text>
       <text>" in his right elbow, and "</text>
       <text fontstyle="93">he did</text>
-      <text>" stop it 002"</text>
-    </paragraph>
-    <paragraph>
-      <text>003 his return, and he finished the year with a 2&#1087;&#1111;&#1029;1 record and 003</text>
+      <text>" stop it 006 007 his return, and he finished the year with a 2&#8211;1 record and 007"</text>
     </paragraph>
     <paragraph>
       <text></text>
-    </paragraph>
-    <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text fontpointsize="14" fontweight="700">&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;2 &#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;&#1087;&#1111;&#1029;</text>
-    </paragraph>
-    <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text>007 Lorenzen was called up to pinch-hit in 007</text>
-    </paragraph>
-    <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text>" --- --- --- cpp --- --- --- "</text>
-    </paragraph>
-    <paragraph>
-      <text>##</text>
-    </paragraph>
-    <paragraph>
-      <text>int main() {</text>
-    </paragraph>
-    <paragraph>
-      <symbol>9</symbol>
-      <text>int r = 0;</text>
-    </paragraph>
-    <paragraph>
-      <symbol>9</symbol>
-      <text>return r;</text>
-    </paragraph>
-    <paragraph>
-      <text>}</text>
-    </paragraph>
-    <paragraph>
-      <text>##</text>
-    </paragraph>
-    <paragraph>
-      <text>int main() {</text>
-    </paragraph>
-    <paragraph>
-      <symbol>9</symbol>
-      <text>int r = 0;</text>
-    </paragraph>
-    <paragraph>
-      <symbol>9</symbol>
-      <text>return r;</text>
-    </paragraph>
-    <paragraph>
-      <text>}</text>
-    </paragraph>
-    <paragraph>
-      <text>" --- --- --- "</text>
-    </paragraph>
-    <paragraph>
-      <text></text>
-    </paragraph>
-    <paragraph>
-      <text>020 until mid-June. He pitched out of the bullpen 020</text>
     </paragraph>
   </paragraphlayout>
 </richtext>

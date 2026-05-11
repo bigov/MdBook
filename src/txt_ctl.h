@@ -48,7 +48,9 @@ public:
     void save_xml_file(const wxString filePath);
 
 private:
-    wxRichTextAttr plain_style;
+    std::unique_ptr<wxRichTextStyleSheet> m_styleSheet;
+    wxRichTextAttr style_base;
+    wxRichTextAttr style_urls;
     int row_current;
     int row_total;
     cmark_node* node_current;
@@ -76,7 +78,7 @@ private:
     void md_custom_inline(cmark_node* n);
     void md_emph();
     void md_strong(cmark_node* n);
-    void md_link(cmark_node* n);
+    void md_link();
     void md_image(cmark_node* n);
     void md_unknown(cmark_node* n);
 
