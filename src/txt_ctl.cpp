@@ -104,8 +104,28 @@ TxtCtl::TxtCtl(wxWindow* parent)
     fi.Family(wxFONTFAMILY_TELETYPE).Style(wxFONTSTYLE_NORMAL);
     fi.FaceName("Adwaita Mono").Weight(wxFONTWEIGHT_NORMAL);
     wxFont font_code_style(fi);
-    this->style_code_block.SetFont(font_code_style);
-    this->style_code_block.SetTextColour(color_code_fg);
+        // Этот набор флагов включает как символьные, так и параграфные атрибуты, чтобы code block можно было рендерить как цельный блочный контейнер.
+        this->style_code_block.SetFlags(wxTEXT_ATTR_FONT
+            | wxTEXT_ATTR_TEXT_COLOUR
+            | wxTEXT_ATTR_BACKGROUND_COLOUR
+            | wxTEXT_ATTR_LEFT_INDENT
+            | wxTEXT_ATTR_RIGHT_INDENT
+            | wxTEXT_ATTR_PARA_SPACING_BEFORE
+            | wxTEXT_ATTR_PARA_SPACING_AFTER);
+        // Этот шрифт закрепляет моноширинный вид текста внутри блока кода и в дальнейшем остается базой для токеновой подсветки.
+        this->style_code_block.SetFont(font_code_style);
+        // Этот цвет задает базовый цвет текста в блоке кода до применения будущих token-span стилей.
+        this->style_code_block.SetTextColour(color_code_fg);
+        // Этот фон формирует единую заливку контейнера блока кода вместо коротких фоновых полос по длине отдельных строк.
+        this->style_code_block.SetBackgroundColour(color_gray_bg);
+        // Этот левый внутренний отступ визуально отделяет код от внешнего текста и работает как псевдо-padding контейнера.
+        this->style_code_block.SetLeftIndent(140);
+        // Этот правый внутренний отступ симметрично формирует ширину контейнера и оставляет поля справа.
+        this->style_code_block.SetRightIndent(140);
+        // Этот верхний интервал отделяет контейнер блока кода от предыдущего параграфа, улучшая читаемость макета.
+        this->style_code_block.SetParagraphSpacingBefore(80);
+        // Этот нижний интервал отделяет контейнер блока кода от следующего параграфа и завершает блочную композицию.
+        this->style_code_block.SetParagraphSpacingAfter(80);
 
     this->style_code = this->style_code_block;
     this->style_code.SetBackgroundColour(color_gray_bg);
@@ -287,24 +307,50 @@ void TxtCtl::md_item(cmark_node* n) {
 }
 
 void TxtCtl::md_code_block() {
-  this->WriteText(" --- --- --- ");
-  WriteText(cmark_node_get_fence_info(this->node_current));
-  this->BeginStyle(style_code_block);
-  this->WriteText(" --- --- --- ");
-  // Многострочный литерал
-  const char* lit = cmark_node_get_literal(this->node_current);
-  if (lit && *lit) {
-    std::istringstream ss(lit);
-    std::string line;
-    // Вывести построчно c подсчетом числа строк
-    while (std::getline(ss, line)) {
-      next_line();
-      this->WriteText(wxString::FromUTF8(line.c_str()));
+    // Многострочный литерал
+    const char* lit = cmark_node_get_literal(this->node_current);
+
+    wxRichTextAttr box_attr;
+    box_attr.SetBackgroundColour(style_code_block.GetBackgroundColour());
+    wxTextBoxAttr& box = box_attr.GetTextBoxAttr();
+    box.GetLeftPadding().SetValue(40, wxTEXT_ATTR_UNITS_PIXELS);
+    box.GetRightPadding().SetValue(40, wxTEXT_ATTR_UNITS_PIXELS);
+    box.GetTopPadding().SetValue(20, wxTEXT_ATTR_UNITS_PIXELS);
+    box.GetBottomPadding().SetValue(20, wxTEXT_ATTR_UNITS_PIXELS);
+    box.GetLeftMargin().SetValue(60, wxTEXT_ATTR_UNITS_PIXELS);
+    box.GetRightMargin().SetValue(60, wxTEXT_ATTR_UNITS_PIXELS);
+
+    wxRichTextBox* code_box = this->WriteTextBox(box_attr);
+    if (!code_box)
+    {
+        return;
     }
-    next_line();
-    this->WriteText(" --- --- --- ");
-    this->EndStyle();
-  }
+
+    wxRichTextParagraphLayoutBox* prev_focus = this->GetFocusObject();
+    this->SetFocusObject(code_box, false);
+
+    wxRichTextAttr code_text_attr;
+    code_text_attr.SetFlags(wxTEXT_ATTR_FONT | wxTEXT_ATTR_TEXT_COLOUR);
+    code_text_attr.SetFont(style_code_block.GetFont());
+    code_text_attr.SetTextColour(style_code_block.GetTextColour());
+    this->SetDefaultStyle(code_text_attr);
+
+    if (lit && *lit) {
+        std::istringstream ss(lit);
+        std::string line;
+        bool first = true;
+        while (std::getline(ss, line)) {
+            if (!first)
+            {
+                next_line();
+            }
+            first = false;
+            this->WriteText(wxString::FromUTF8(line.c_str()));
+        }
+    }
+
+    this->SetFocusObject(prev_focus ? prev_focus : &this->GetBuffer(), false);
+    this->SetDefaultStyle(this->style_base);
 }
 
 void TxtCtl::md_html_block(cmark_node* n) {

@@ -68,7 +68,6 @@ private:
     void next_line();
     void row_check();
     void show_literal(cmark_node* n);
-
     void md_none();
     void md_blockquote(cmark_node* n);
     void md_list(cmark_node* n);
