@@ -42,30 +42,19 @@ namespace
         return false;
     }
 
-    void load_file_content(const wxString& filePath, wxString& content)
+    void load_file_content(const wxString filePath, std::string& content)
     {
-        if (!isFileExist(filePath)) return;
-        wxFileInputStream input_stream(filePath);
-        if (!input_stream.IsOk())
+        content.clear();
+        const wchar_t* f = filePath.wc_str();
+        if (std::ifstream reader{f}; reader)
         {
-            wxLogError(_("Cannot open file '%s'."), filePath.wc_str());
-            return;
-        }
-
-        wxStringOutputStream string_stream(&content);
-        input_stream.Read(string_stream);
-
-        if (input_stream.GetLastError() != wxSTREAM_NO_ERROR &&
-            input_stream.GetLastError() != wxSTREAM_EOF)
-        {
+            std::string line;
+            while (std::getline(reader, line)) content.append(line + "\n");
+        } else {
             wxLogError(_("Cannot read file '%s'."), filePath.wc_str());
-            return;
         }
-
-        // Normalize line breaks to Unix style for consistent processing
-        content.Replace("\r\n", "\n");
-        content.Replace("\r", "\n");
     }
+
 } // namespace
 
 // Конструктор класса TxtCtl
@@ -110,12 +99,12 @@ TxtCtl::TxtCtl(wxWindow* parent)
 void TxtCtl::new_document()
 {
     this->Clear();
-    this->SetDefaultStyle(this->style_base);
-    this->SetBasicStyle(this->style_base);
-    this->GetBuffer().SetDefaultStyle(this->style_base);
-    this->SetAndShowDefaultStyle(this->style_base);
-    this->SetMargins(6, 4);
     this->SetInsertionPoint(0);
+    this->SetBasicStyle(this->style_base);
+    this->SetDefaultStyle(this->style_base);
+    this->SetAndShowDefaultStyle(this->style_base);
+    this->GetBuffer().SetDefaultStyle(this->style_base);
+    this->SetMargins(6, 4);
     this->row_current = 0;
     this->row_total = 0;
 }
@@ -189,10 +178,11 @@ void TxtCtl::load_file(const wxString filePath)
 void TxtCtl::load_md_file(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
-    wxString plain_text;
-    load_file_content(filePath, plain_text);
-    cmark_node* node = cmark_parse_document(plain_text.c_str(),
-         plain_text.size(), CMARK_OPT_DEFAULT);
+    std::string text = "";
+    load_file_content(filePath, text);
+
+    cmark_node* node = cmark_parse_document(text.c_str(),
+         text.size(), CMARK_OPT_DEFAULT);
     if (!node) {
         wxLogError(_("Error parsing file '%s'."), filePath.wc_str());
         node = nullptr;
@@ -200,34 +190,28 @@ void TxtCtl::load_md_file(const wxString filePath)
     }
     this->node_current = node;
     this->BeginSuppressUndo();
-    // Defensive cleanup in case a previous render left style state in stack.
-    this->EndAllStyles();
     deploy_md_node();
     this->node_current = nullptr;
     // Дополнить пустые строки до конца документа.
     while (this->row_current < this->row_total) {
         next_line();
     }
+    // Баг парсера: если текст заканчивается на '\n', то последняя строка не считается, а она должна быть.
+    if (text.size() >= 1 && text.substr(text.size()-1) == "\n") next_line();
     cmark_node_free(node);
-    // Ensure no transient rendering styles survive after markdown traversal.
-    this->EndAllStyles();
     this->EndSuppressUndo();
-    this->SetInsertionPoint(0);
-    this->SetDefaultStyle(this->style_base);
-    this->GetBuffer().SetDefaultStyle(this->style_base);
-    this->SetAndShowDefaultStyle(this->style_base);
 }
 
 // --- Load the plain text content from a file ---
 void TxtCtl::load_plain_file(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
-    wxString plain_text;
+    std::string plain_text;
     load_file_content(filePath, plain_text);
 
     new_document();
     this->BeginSuppressUndo();
-    this->WriteText(plain_text);
+    this->WriteText(wxString::FromUTF8(plain_text.c_str()));
     this->EndSuppressUndo();
     this->SetInsertionPoint(0);
 }
@@ -236,7 +220,7 @@ void TxtCtl::load_plain_file(const wxString filePath)
 void TxtCtl::load_xml_file(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
-    wxString xml_content;
+    std::string xml_content;
     load_file_content(filePath, xml_content);
     push_xml_data(xml_content);
 }
@@ -260,9 +244,10 @@ void TxtCtl::row_check() {
 }
 
 // Содержимое текстовых узлов, code, html_inline и т.д.
+// rtc->SetValue(wxString::FromUTF8(u8"äöü — пример"));
 void TxtCtl::show_literal(cmark_node* n) {
     const char* lit = cmark_node_get_literal(n);
-    if (lit && *lit) this->WriteText(std::string(lit));
+    if (lit && *lit) this->WriteText(wxString::FromUTF8(lit));
 }
 
 void TxtCtl::md_none() {
@@ -293,7 +278,7 @@ void TxtCtl::md_code_block() {
     // Вывести построчно c подсчетом числа строк
     while (std::getline(ss, line)) {
       next_line();
-      this->WriteText(line);
+      this->WriteText(wxString::FromUTF8(line.c_str()));
     }
     next_line();
     this->WriteText(" --- --- --- ");
@@ -376,6 +361,7 @@ void TxtCtl::deploy_md_node()
     
   switch (t) {
   case CMARK_NODE_NONE:
+    next_line();
     md_none();
     break;
   // -- Block nodes --
