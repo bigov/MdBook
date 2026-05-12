@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<richtext version="1.0.0.0" xmlns="http://www.wxwidgets.org">
+  <paragraphlayout textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial" alignment="1" margin-left="6,4098" margin-right="6,4098" margin-top="4,4098" margin-bottom="4,4098">
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="15" fontfamily="74" fontstyle="90" fontweight="700" fontunderlined="0" fontface="Arial">&#1054;&#1073;&#1097;&#1080;&#1081; &#1079;&#1072;&#1075;&#1086;&#1083;&#1086;&#1074;&#1086;&#1082; 001</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">003 During in 2016, he was diagnosed with a sprai 003</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">004 until mid-June. He pitched out of the bullpen 004</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">"006 Cincinnaty at "</text>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="700" fontunderlined="0" fontface="Arial">'uponulnar collateral ligament'</text>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">" in his right elbow, and "</text>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="93" fontweight="400" fontunderlined="0" fontface="Arial">he did</text>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">" stop it 006"</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">007 his return, and he finished the year with a 2&#8211;1 record and 007</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="14" fontfamily="74" fontstyle="90" fontweight="700" fontunderlined="0" fontface="Arial">&#1055;&#1088;&#1080;&#1084;&#1077;&#1088; &#1089; &#1082;&#1086;&#1076;&#1086;&#1084; 010</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">012 Lorenzen was called up to pinch-hit in 012</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">" --- --- --- cpp --- --- --- "</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">int main() {</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <symbol textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">9</symbol>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial"># &#1050;&#1086;&#1084;&#1084;&#1077;&#1085;&#1090;&#1072;&#1088;&#1080;&#1081; &#1085;&#1072; &#1088;&#1091;&#1089;&#1089;&#1082;&#1086;&#1084; 016</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <symbol textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">9</symbol>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">int r = 0;</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <symbol textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">9</symbol>
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">return r;</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">}</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">" --- --- --- "</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text textcolor="#444444" bgcolor="#FFFFFF" fontpointsize="11" fontfamily="74" fontstyle="90" fontweight="400" fontunderlined="0" fontface="Arial">022 until mid-June. He pitched out of the bullpen 022.</text>
+    </paragraph>
+    <paragraph alignment="1">
+      <text></text>
+    </paragraph>
+  </paragraphlayout>
+</richtext>

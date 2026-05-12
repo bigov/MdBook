@@ -73,23 +73,43 @@ TxtCtl::TxtCtl(wxWindow* parent)
          | wxTEXT_ATTR_TEXT_COLOUR
          | wxTEXT_ATTR_BACKGROUND_COLOUR);
 
-    wxFont base_font = wxFont(11, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    this->style_code.SetFlags(wxTEXT_ATTR_FONT
+         | wxTEXT_ATTR_TEXT_COLOUR
+         | wxTEXT_ATTR_BACKGROUND_COLOUR);
+
+
+    wxFont base_font = wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    base_font.SetFaceName("Adwaita Sans");
     wxColor color_base_fg = "#444444";
     wxColor color_urls_fg = "#25A4D1"; 
+    wxColor color_code_fg = "#0954b8";
     wxColor color_base_bg = "#ffffff";
+    wxColor color_gray_bg = "#f0f0f0";
 
     this->style_base.SetFont(base_font);
     this->style_base.SetTextColour(color_base_fg);
     this->style_base.SetBackgroundColour(color_base_bg);
     this->style_base.SetFontWeight(wxFONTWEIGHT_NORMAL);
 
+    // Style for links
     this->style_urls.SetTextColour(color_urls_fg);
     this->style_urls.SetFontUnderlined(true);
-    auto linkStyle = std::make_unique<wxRichTextCharacterStyleDefinition>("style_urls");
-    linkStyle->SetStyle(this->style_urls);
-    this->m_styleSheet->AddCharacterStyle(linkStyle.get());
-    linkStyle.release();
-    
+    auto s = std::make_unique<wxRichTextCharacterStyleDefinition>("style_urls");
+    s->SetStyle(this->style_urls);
+    this->m_styleSheet->AddCharacterStyle(s.get());
+    s.release();
+
+    // Style for code blocks and inline code
+    wxFontInfo fi = wxFontInfo(10);
+    fi.Family(wxFONTFAMILY_TELETYPE).Style(wxFONTSTYLE_NORMAL);
+    fi.FaceName("Adwaita Mono").Weight(wxFONTWEIGHT_NORMAL);
+    wxFont font_code_style(fi);
+    this->style_code_block.SetFont(font_code_style);
+    this->style_code_block.SetTextColour(color_code_fg);
+
+    this->style_code = this->style_code_block;
+    this->style_code.SetBackgroundColour(color_gray_bg);
+
     this->SetStyleSheet(this->m_styleSheet.get());
 
     this->node_current = nullptr;
@@ -269,6 +289,7 @@ void TxtCtl::md_item(cmark_node* n) {
 void TxtCtl::md_code_block() {
   this->WriteText(" --- --- --- ");
   WriteText(cmark_node_get_fence_info(this->node_current));
+  this->BeginStyle(style_code_block);
   this->WriteText(" --- --- --- ");
   // Многострочный литерал
   const char* lit = cmark_node_get_literal(this->node_current);
@@ -282,6 +303,7 @@ void TxtCtl::md_code_block() {
     }
     next_line();
     this->WriteText(" --- --- --- ");
+    this->EndStyle();
   }
 }
 
@@ -312,11 +334,11 @@ void TxtCtl::md_text(cmark_node* n) {
 }
 
 void TxtCtl::md_code() {
-    this->BeginBold();
-    this->WriteText("'");
+    this->BeginStyle(style_code);
+    this->WriteText(" ");
     show_literal(this->node_current);
-    this->WriteText("'");
-    this->EndBold();
+    this->WriteText(" ");
+    this->EndStyle();
 }
 void TxtCtl::md_html_inline(cmark_node* n) {
     this->WriteText("HTML inline\n");

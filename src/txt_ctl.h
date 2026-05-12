@@ -50,8 +50,13 @@ public:
 
 private:
     std::unique_ptr<wxRichTextStyleSheet> m_styleSheet;
-    wxTextAttrEx style_base;
+
+    // wxTextAttrEx style_base;
+    wxRichTextAttr style_base;
     wxRichTextAttr style_urls;
+    wxRichTextAttr style_code;
+    wxRichTextAttr style_code_block;
+
     int row_current;
     int row_total;
     cmark_node* node_current;
