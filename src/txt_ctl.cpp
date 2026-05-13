@@ -126,7 +126,6 @@ void TxtCtl::new_document()
     this->SetDefaultStyle(this->style_base);
     this->SetAndShowDefaultStyle(this->style_base);
     this->GetBuffer().SetDefaultStyle(this->style_base);
-    this->SetMargins(6, 4);
     this->row_current = 0;
     this->row_total = 0;
 }
@@ -291,9 +290,10 @@ void TxtCtl::md_item(cmark_node* n) {
 void TxtCtl::md_code_block() {
     wxRichTextAttr box_attr;
     box_attr.SetBackgroundColour(style_code.GetBackgroundColour());
-    box_attr.SetLeftIndent(20, wxTEXT_ATTR_UNITS_POINTS);
     wxTextBoxAttr& tba = box_attr.GetTextBoxAttr();
-    tba.GetWidth().SetValue(98, wxTEXT_ATTR_UNITS_PERCENTAGE);
+    tba.GetWidth().SetValue(100, wxTEXT_ATTR_UNITS_PERCENTAGE);
+    tba.GetLeftPadding().SetValue(10, wxTEXT_ATTR_UNITS_POINTS);
+    tba.GetRightPadding().SetValue(10, wxTEXT_ATTR_UNITS_POINTS);
 
     wxRichTextBox* box = this->WriteTextBox(box_attr);
     if (!box) return;

@@ -8,6 +8,8 @@
 #include "wx/icon.h"
 #include "wx/image.h"
 #include "wx/menu.h"
+#include "wx/panel.h"
+#include "wx/sizer.h"
 #include "wx/stdpaths.h"
 
 static const int APP_CLOSE = 1000;
@@ -23,7 +25,19 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
         + ASSETS_DIR + wxFileName::GetPathSeparator() + APP_ICON_FNAME;
     SetAppIcon(iconPath);
 
-    txt_ctl = new TxtCtl(this);
+    // Panel wrapper emulates a border with configurable color and thickness.
+    wxPanel* txt_border_panel = new wxPanel(this);
+    txt_border_panel->SetBackgroundColour(wxColour("#ffffff"));
+
+    txt_ctl = new TxtCtl(txt_border_panel);
+
+    wxBoxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
+    borderSizer->Add(txt_ctl, 1, wxEXPAND | wxALL, 10);
+    txt_border_panel->SetSizer(borderSizer);
+
+    wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+    frameSizer->Add(txt_border_panel, 1, wxEXPAND | wxALL, 2);
+    SetSizer(frameSizer);
 
     wxMenu* fileMenu = new wxMenu;
 
