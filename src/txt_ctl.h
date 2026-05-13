@@ -82,7 +82,7 @@ private:
     void md_html_inline(cmark_node* n);
     void md_custom_inline(cmark_node* n);
     void md_emph();
-    void md_strong(cmark_node* n);
+    void md_strong();
     void md_link();
     void md_image(cmark_node* n);
     void md_unknown(cmark_node* n);
