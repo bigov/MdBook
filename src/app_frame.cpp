@@ -1,4 +1,5 @@
 #include "app_frame.h"
+#include "nav_panel.h"
 #include "wx/sstream.h"
 #include "wx/filedlg.h"
 #include "wx/filename.h"
@@ -10,6 +11,7 @@
 #include "wx/menu.h"
 #include "wx/panel.h"
 #include "wx/sizer.h"
+#include "wx/splitter.h"
 #include "wx/stdpaths.h"
 #include "wx/config.h"
 
@@ -26,22 +28,60 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
         + ASSETS_DIR + wxFileName::GetPathSeparator() + APP_ICON_FNAME;
     SetAppIcon(iconPath);
 
-    // Панель для формирования полей (отступов) цвета фона
-    // вокруг текстового контента, чтобы он не отображался
-    // вплотную к видимым границам фрейма.
-    wxPanel* txt_border_panel = new wxPanel(this);
+    // Основной контейнер из двух областей: левая навигация и правый редактор.
+    // Он отвечает за интерактивный разделитель (sash), который пользователь
+    // перетаскивает мышью для изменения относительной ширины панелей.
+    wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition,
+                                    wxDefaultSize, wxSP_NO_XP_THEME);
+    // Минимальная ширина каждой из двух областей, чтобы панели не схлопывались.
+    splitter->SetMinimumPaneSize(120);
+    // При изменении размера окна дополнительное место преимущественно получает
+    // правая панель (редактор), левая навигация остается более стабильной.
+    splitter->SetSashGravity(0.0);
+    // Фон корневого окна синхронизируется с фоном splitter, чтобы боковые поля
+    // по краям выглядели тем же цветом, что и область вокруг разделителя.
+    SetBackgroundColour(splitter->GetBackgroundColour());
+
+    // Правая контейнерная панель редактора с темой-рамкой.
+    // Эта рамка задает визуальную границу правой области и отделяет контент
+    // от фона splitter, сохраняя единый стиль с левой областью.
+    wxPanel* txt_border_panel = new wxPanel(splitter, wxID_ANY, wxDefaultPosition,
+                                            wxDefaultSize, wxBORDER_THEME);
+    // Белый фон рабочей области редактора: в пределах этой панели размещается
+    // текстовый контент, поэтому цвет фиксируется явно.
     txt_border_panel->SetBackgroundColour(wxColour("#ffffff"));
 
+    // Основной текстовый контрол редактора, размещается внутри правой панели.
     txt_rich = new TxtRich(txt_border_panel);
 
-    // Сюда верстается содержимое wxRichTextCtrl c полями отступа.
+    // Левая контейнерная панель навигации с такой же светлой theme-рамкой,
+    // как у правой панели, чтобы визуально обе стороны выглядели одинаково.
+    wxPanel* nav_border_panel = new wxPanel(splitter, wxID_ANY, wxDefaultPosition,
+                                            wxDefaultSize, wxBORDER_THEME);
+    // Дерево навигации, вложенное в левую контейнерную панель.
+    nav_panel = new NavPanel(nav_border_panel);
+    // Комфортная минимальная ширина панели навигации для читаемости заголовков.
+    nav_panel->SetMinSize(wxSize(220, -1));
+
+    // Компоновщик правой панели: добавляет внутренние отступы вокруг редактора,
+    // чтобы текст не примыкал к рамке и оставался визуально "воздушным".
     wxBoxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
     borderSizer->Add(txt_rich, 1, wxEXPAND | wxALL, 10);
     txt_border_panel->SetSizer(borderSizer);
 
-    // txt_border_panel вставляется в окно приложения, формируя border.
-    wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
-    frameSizer->Add(txt_border_panel, 1, wxEXPAND | wxALL, 1);
+    // Компоновщик левой панели: дерево занимает всю полезную площадь контейнера.
+    wxBoxSizer* navSizer = new wxBoxSizer(wxVERTICAL);
+    navSizer->Add(nav_panel, 1, wxEXPAND);
+    nav_border_panel->SetSizer(navSizer);
+
+    // Размещение областей в splitter: слева навигация, справа редактор.
+    // Третий аргумент задает начальную позицию разделителя по оси X.
+    splitter->SplitVertically(nav_border_panel, txt_border_panel, 260);
+
+    // Корневой компоновщик фрейма: размещает splitter на все окно, оставляя
+    // только боковые внешние поля, без верхнего и нижнего отступа.
+    wxBoxSizer* frameSizer = new wxBoxSizer(wxHORIZONTAL);
+    frameSizer->Add(splitter, 1, wxEXPAND | wxLEFT | wxRIGHT, 3);
     SetSizer(frameSizer);
 
     wxMenu* fileMenu = new wxMenu;

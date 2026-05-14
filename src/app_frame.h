@@ -4,6 +4,8 @@
 
 #include "txt_rich.h"
 
+class NavPanel;
+
 class AppFrame: public wxFrame
 {
 public:
@@ -16,6 +18,7 @@ public:
 
 private:
     TxtRich* txt_rich;
+    NavPanel* nav_panel;
     void SaveWindowGeometry();
     void SetAppIcon(const wxString& iconPath);
 };
