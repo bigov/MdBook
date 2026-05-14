@@ -28,19 +28,20 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
 
     // Панель для формирования полей (отступов) цвета фона
     // вокруг текстового контента, чтобы он не отображался
-    // вплотную к границам фрейма.
+    // вплотную к видимым границам фрейма.
     wxPanel* txt_border_panel = new wxPanel(this);
     txt_border_panel->SetBackgroundColour(wxColour("#ffffff"));
 
     txt_rich = new TxtRich(txt_border_panel);
 
-    //Сюда верстается содержимое wxRichTextCtrl.
+    // Сюда верстается содержимое wxRichTextCtrl c полями отступа.
     wxBoxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
     borderSizer->Add(txt_rich, 1, wxEXPAND | wxALL, 10);
     txt_border_panel->SetSizer(borderSizer);
 
+    // txt_border_panel вставляется в окно приложения, формируя border.
     wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
-    frameSizer->Add(txt_border_panel, 1, wxEXPAND | wxALL, 2);
+    frameSizer->Add(txt_border_panel, 1, wxEXPAND | wxALL, 1);
     SetSizer(frameSizer);
 
     wxMenu* fileMenu = new wxMenu;

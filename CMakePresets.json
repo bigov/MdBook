@@ -20,10 +20,10 @@
       "name": "dev-app",
       "inherits": "base-debug",
       "displayName": "Dev: App",
-      "description": "Сборка только GUI-приложения mdbook",
+      "description": "Сборка только GUI-приложения hmbook",
       "cacheVariables": {
-        "MDBOOK_BUILD_APP": "ON",
-        "MDBOOK_BUILD_TESTS": "OFF"
+        "HMBOOK_BUILD_APP": "ON",
+        "HMBOOK_BUILD_TESTS": "OFF"
       }
     },
     {
@@ -32,8 +32,8 @@
       "displayName": "Dev: Tests",
       "description": "Сборка только тестовых утилит из tests",
       "cacheVariables": {
-        "MDBOOK_BUILD_APP": "OFF",
-        "MDBOOK_BUILD_TESTS": "ON"
+        "HMBOOK_BUILD_APP": "OFF",
+        "HMBOOK_BUILD_TESTS": "ON"
       }
     },
     {
@@ -42,8 +42,8 @@
       "displayName": "Dev: All",
       "description": "Сборка приложения и тестов",
       "cacheVariables": {
-        "MDBOOK_BUILD_APP": "ON",
-        "MDBOOK_BUILD_TESTS": "ON"
+        "HMBOOK_BUILD_APP": "ON",
+        "HMBOOK_BUILD_TESTS": "ON"
       }
     }
   ],

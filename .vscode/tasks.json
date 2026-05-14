@@ -14,7 +14,7 @@
 			"group": "build"
 		},
 		{
-			"label": "CMake: build mdbook",
+			"label": "CMake: build hmbook",
 			"type": "shell",
 			"command": "cmake",
 			"args": [
@@ -22,7 +22,7 @@
 				"--preset",
 				"build-app",
 				"--target",
-				"mdbook"
+				"hmbook"
 			],
 			"dependsOn": [
 				"CMake: configure app"
@@ -37,7 +37,7 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"detail": "Инкрементальная сборка цели mdbook в каталоге build."
+			"detail": "Инкрементальная сборка цели hmbook в каталоге build."
 		},
 		{
 			"label": "CMake: configure tests",

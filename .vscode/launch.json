@@ -2,14 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug mdbook",
+            "name": "Debug hmbook",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/dev-app/mdbook.exe",
+            "program": "${workspaceFolder}/build/dev-app/hmbook.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/dev-app",
-            "preLaunchTask": "CMake: build mdbook",
+            "preLaunchTask": "CMake: build hmbook",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
