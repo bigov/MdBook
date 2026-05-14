@@ -39,10 +39,10 @@ static const wxString RICH_BUFFER_EXT = "wxrt";
 static const wxString TEXT_BUFFER_EXT = "txt";
 static const wxString MARK_BUFFER_EXT = "md";
 
-class TxtCtl: public wxRichTextCtrl
+class TxtRich: public wxRichTextCtrl
 {
 public:
-    TxtCtl(wxWindow* parent);
+    TxtRich(wxWindow* parent);
     wxMenu* edit_menu();
     void load_file(const wxString filePath);
     void save_plain_file(const wxString filePath);

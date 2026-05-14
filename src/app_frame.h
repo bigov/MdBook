@@ -2,7 +2,7 @@
 #include "wx/frame.h"
 #include "wx/string.h"
 
-#include "txt_ctl.h"
+#include "txt_rich.h"
 
 class AppFrame: public wxFrame
 {
@@ -15,7 +15,7 @@ public:
     void FileSaveAs(wxCommandEvent& event);
 
 private:
-    TxtCtl* txt_ctl;
+    TxtRich* txt_rich;
     void SaveWindowGeometry();
     void SetAppIcon(const wxString& iconPath);
 };

@@ -13,7 +13,7 @@
 #include "wx/textdlg.h"
 #include "wx/tokenzr.h"
 #include "wx/log.h"
-#include "txt_ctl.h"
+#include "txt_rich.h"
 
 
 namespace
@@ -58,7 +58,7 @@ namespace
 } // namespace
 
 // Конструктор класса TxtCtl
-TxtCtl::TxtCtl(wxWindow* parent)
+TxtRich::TxtRich(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
                     wxVSCROLL | wxHSCROLL | wxBORDER_NONE | wxWANTS_CHARS)
 {
@@ -118,7 +118,7 @@ TxtCtl::TxtCtl(wxWindow* parent)
     new_document();
 }
 
-void TxtCtl::new_document()
+void TxtRich::new_document()
 {
     this->Clear();
     this->SetInsertionPoint(0);
@@ -130,7 +130,7 @@ void TxtCtl::new_document()
     this->row_total = 0;
 }
 
-void TxtCtl::load_xml_handler()
+void TxtRich::load_xml_handler()
 {
     if (!wxRichTextBuffer::FindHandler(wxRICHTEXT_TYPE_XML))
     {
@@ -139,7 +139,7 @@ void TxtCtl::load_xml_handler()
 }
 
 // --- Save the buffer content as plain text ---
-void TxtCtl::save_plain_file(const wxString filePath)
+void TxtRich::save_plain_file(const wxString filePath)
 {
     wxRichTextBuffer& buffer = this->GetBuffer();
     const wxString plain_text = buffer.GetText().utf8_str();
@@ -153,7 +153,7 @@ void TxtCtl::save_plain_file(const wxString filePath)
     }
 }
 
-void TxtCtl::save_xml_file(const wxString filePath)
+void TxtRich::save_xml_file(const wxString filePath)
 {
     wxRichTextBuffer& buffer = this->GetBuffer();
     load_xml_handler();
@@ -165,7 +165,7 @@ void TxtCtl::save_xml_file(const wxString filePath)
 }
 
 // --- Load the prepared XML data into the control's buffer ---
-void TxtCtl::push_xml_data(const wxString& content)
+void TxtRich::push_xml_data(const wxString& content)
 {
     wxStringInputStream xml_stream(content);
     wxRichTextBuffer& buffer = this->GetBuffer();
@@ -180,7 +180,7 @@ void TxtCtl::push_xml_data(const wxString& content)
 }
 
 // --- Load files with any formats ---
-void TxtCtl::load_file(const wxString filePath)
+void TxtRich::load_file(const wxString filePath)
 {
     auto fileName = wxFileName(filePath);
     wxString fileExt = fileName.GetExt();
@@ -196,7 +196,7 @@ void TxtCtl::load_file(const wxString filePath)
 }
 
 // --- Load the Markdown file text ---
-void TxtCtl::load_md_file(const wxString filePath)
+void TxtRich::load_md_file(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
     std::string text = "";
@@ -224,7 +224,7 @@ void TxtCtl::load_md_file(const wxString filePath)
 }
 
 // --- Load the plain text content from a file ---
-void TxtCtl::load_plain_file(const wxString filePath)
+void TxtRich::load_plain_file(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
     std::string plain_text;
@@ -238,7 +238,7 @@ void TxtCtl::load_plain_file(const wxString filePath)
 }
 
 // --- Load the XML content from a file ---
-void TxtCtl::load_xml_file(const wxString filePath)
+void TxtRich::load_xml_file(const wxString filePath)
 {
     if (!isFileExist(filePath)) return;
     std::string xml_content;
@@ -247,14 +247,14 @@ void TxtCtl::load_xml_file(const wxString filePath)
 }
 
 // Переход на следующую строку.
-void TxtCtl::next_line() {
+void TxtRich::next_line() {
     this->row_current++;
     //В начале документа новый абзац не создавать (уже есть).
     if(this->row_current > 1) Newline();
     row_check();
 }
 
-void TxtCtl::row_check() {
+void TxtRich::row_check() {
     if(this->node_current == nullptr) return;
     int row_node_start = cmark_node_get_start_line(this->node_current);
     while (row_node_start > this->row_current)
@@ -266,28 +266,28 @@ void TxtCtl::row_check() {
 
 // Содержимое текстовых узлов, code, html_inline и т.д.
 // rtc->SetValue(wxString::FromUTF8(u8"äöü — пример"));
-void TxtCtl::show_literal(cmark_node* n) {
+void TxtRich::show_literal(cmark_node* n) {
     const char* lit = cmark_node_get_literal(n);
     if (lit && *lit) this->WriteText(wxString::FromUTF8(lit));
 }
 
-void TxtCtl::md_none() {
+void TxtRich::md_none() {
     this->WriteText("ERROR: Not found node\n");
 }
 
-void TxtCtl::md_blockquote(cmark_node* n) {
+void TxtRich::md_blockquote(cmark_node* n) {
     this->WriteText("Block quote\n");
 }
 
-void TxtCtl::md_list(cmark_node* n) {
+void TxtRich::md_list(cmark_node* n) {
     this->WriteText("List\n");
 }
 
-void TxtCtl::md_item(cmark_node* n) {
+void TxtRich::md_item(cmark_node* n) {
     this->WriteText("Item\n");
 }
 
-void TxtCtl::md_code_block() {
+void TxtRich::md_code_block() {
     wxRichTextAttr box_attr;
     box_attr.SetBackgroundColour(style_code.GetBackgroundColour());
     wxTextBoxAttr& tba = box_attr.GetTextBoxAttr();
@@ -314,14 +314,14 @@ void TxtCtl::md_code_block() {
     }
 }
 
-void TxtCtl::md_html_block(cmark_node* n) {
+void TxtRich::md_html_block(cmark_node* n) {
     this->WriteText("HTML block\n");
 }
-void TxtCtl::md_custom_block(cmark_node* n) {
+void TxtRich::md_custom_block(cmark_node* n) {
     this->WriteText("Custom block\n");
 }
 
-void TxtCtl::md_header() {
+void TxtRich::md_header() {
     // Размер заголовка
     int font_size = 16 - cmark_node_get_heading_level(this->node_current);
     this->BeginFontSize(font_size);
@@ -333,39 +333,39 @@ void TxtCtl::md_header() {
     this->EndBold();
     this->EndFontSize();
 }
-void TxtCtl::md_thematic_break(cmark_node* n) {
+void TxtRich::md_thematic_break(cmark_node* n) {
     this->WriteText("Thematic break\n");
 }
-void TxtCtl::md_text(cmark_node* n) {
+void TxtRich::md_text(cmark_node* n) {
     show_literal(n);
 }
 
-void TxtCtl::md_code() {
+void TxtRich::md_code() {
     this->BeginStyle(style_code);
     this->WriteText(" ");
     show_literal(this->node_current);
     this->WriteText(" ");
     this->EndStyle();
 }
-void TxtCtl::md_html_inline(cmark_node* n) {
+void TxtRich::md_html_inline(cmark_node* n) {
     this->WriteText("HTML inline\n");
 }
-void TxtCtl::md_custom_inline(cmark_node* n) {
+void TxtRich::md_custom_inline(cmark_node* n) {
     this->WriteText("Custom inline\n");
 }
-void TxtCtl::md_emph() {
+void TxtRich::md_emph() {
     this->BeginItalic();
     this->node_current = cmark_node_first_child(this->node_current);
     show_literal(this->node_current);
     this->EndItalic();
 }
-void TxtCtl::md_strong() {
+void TxtRich::md_strong() {
     this->BeginBold();
     this->node_current = cmark_node_first_child(this->node_current);
     show_literal(this->node_current);
     this->EndBold();
 }
-void TxtCtl::md_link() {
+void TxtRich::md_link() {
     const char *url = cmark_node_get_url(this->node_current);
     //const char *title = cmark_node_get_title(this->node_current);
     this->node_current = cmark_node_first_child(this->node_current);
@@ -374,17 +374,17 @@ void TxtCtl::md_link() {
     this->WriteText(text);
     this->EndURL();
 }
-void TxtCtl::md_image(cmark_node* n) {
+void TxtRich::md_image(cmark_node* n) {
     this->WriteText("Image\n");
 }
-void TxtCtl::md_unknown(cmark_node* n) {
+void TxtRich::md_unknown(cmark_node* n) {
     this->WriteText("Unknown\n");
 }
 
 // ---------------------------------------------
 
 
-void TxtCtl::deploy_md_node()
+void TxtRich::deploy_md_node()
 {
   if (!node_current) return;
   cmark_node_type t = cmark_node_get_type(node_current);
@@ -479,7 +479,7 @@ void TxtCtl::deploy_md_node()
     }
 }
 
-wxMenu* TxtCtl::edit_menu()
+wxMenu* TxtRich::edit_menu()
 {
     wxWindow* topLevel = wxGetTopLevelParent(this);
     wxMenu* editMenu = new wxMenu;
@@ -532,7 +532,7 @@ wxMenu* TxtCtl::edit_menu()
 }
 
 
-void TxtCtl::on_change_font(wxCommandEvent& WXUNUSED(event))
+void TxtRich::on_change_font(wxCommandEvent& WXUNUSED(event))
 {
     wxFontData data;
     data.EnableEffects(true);
@@ -555,7 +555,7 @@ void TxtCtl::on_change_font(wxCommandEvent& WXUNUSED(event))
     }
 }
 
-void TxtCtl::on_left_align(wxCommandEvent& WXUNUSED(event))
+void TxtRich::on_left_align(wxCommandEvent& WXUNUSED(event))
 {
     wxTextAttr attr;
     attr.SetAlignment(wxTEXT_ALIGNMENT_LEFT);
@@ -565,7 +565,7 @@ void TxtCtl::on_left_align(wxCommandEvent& WXUNUSED(event))
     this->SetStyle(start, end, attr);
 }
 
-void TxtCtl::on_right_align(wxCommandEvent& WXUNUSED(event))
+void TxtRich::on_right_align(wxCommandEvent& WXUNUSED(event))
 {
     wxTextAttr attr;
     attr.SetAlignment(wxTEXT_ALIGNMENT_RIGHT);
@@ -575,7 +575,7 @@ void TxtCtl::on_right_align(wxCommandEvent& WXUNUSED(event))
     this->SetStyle(start, end, attr);
 }
 
-void TxtCtl::OnJustify(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnJustify(wxCommandEvent& WXUNUSED(event))
 {
     wxTextAttr attr;
     attr.SetAlignment(wxTEXT_ALIGNMENT_JUSTIFIED);
@@ -585,7 +585,7 @@ void TxtCtl::OnJustify(wxCommandEvent& WXUNUSED(event))
     this->SetStyle(start, end, attr);
 }
 
-void TxtCtl::OnCentre(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnCentre(wxCommandEvent& WXUNUSED(event))
 {
     wxTextAttr attr;
     attr.SetAlignment(wxTEXT_ALIGNMENT_CENTRE);
@@ -596,7 +596,7 @@ void TxtCtl::OnCentre(wxCommandEvent& WXUNUSED(event))
 }
 
 
-void TxtCtl::OnChangeTextColour(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnChangeTextColour(wxCommandEvent& WXUNUSED(event))
 {
     wxColourData data;
     data.SetColour(* wxBLACK);
@@ -623,7 +623,7 @@ void TxtCtl::OnChangeTextColour(wxCommandEvent& WXUNUSED(event))
     }
 }
 
-void TxtCtl::OnChangeBackgroundColour(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnChangeBackgroundColour(wxCommandEvent& WXUNUSED(event))
 {
     wxColourData data;
     data.SetColour(* wxWHITE);
@@ -650,7 +650,7 @@ void TxtCtl::OnChangeBackgroundColour(wxCommandEvent& WXUNUSED(event))
     }
 }
 
-void TxtCtl::OnLeftIndent(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnLeftIndent(wxCommandEvent& WXUNUSED(event))
 {
     wxString indentStr = wxGetTextFromUser
                          (
@@ -672,7 +672,7 @@ void TxtCtl::OnLeftIndent(wxCommandEvent& WXUNUSED(event))
     }
 }
 
-void TxtCtl::OnRightIndent(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnRightIndent(wxCommandEvent& WXUNUSED(event))
 {
     wxString indentStr = wxGetTextFromUser
                          (
@@ -694,7 +694,7 @@ void TxtCtl::OnRightIndent(wxCommandEvent& WXUNUSED(event))
     }
 }
 
-void TxtCtl::OnTabStops(wxCommandEvent& WXUNUSED(event))
+void TxtRich::OnTabStops(wxCommandEvent& WXUNUSED(event))
 {
     wxString tabsStr = wxGetTextFromUser
     (

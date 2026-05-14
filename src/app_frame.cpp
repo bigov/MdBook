@@ -26,14 +26,17 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
         + ASSETS_DIR + wxFileName::GetPathSeparator() + APP_ICON_FNAME;
     SetAppIcon(iconPath);
 
-    // Panel wrapper emulates a border with configurable color and thickness.
+    // Панель для формирования полей (отступов) цвета фона
+    // вокруг текстового контента, чтобы он не отображался
+    // вплотную к границам фрейма.
     wxPanel* txt_border_panel = new wxPanel(this);
     txt_border_panel->SetBackgroundColour(wxColour("#ffffff"));
 
-    txt_ctl = new TxtCtl(txt_border_panel);
+    txt_rich = new TxtRich(txt_border_panel);
 
+    //Сюда верстается содержимое wxRichTextCtrl.
     wxBoxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
-    borderSizer->Add(txt_ctl, 1, wxEXPAND | wxALL, 10);
+    borderSizer->Add(txt_rich, 1, wxEXPAND | wxALL, 10);
     txt_border_panel->SetSizer(borderSizer);
 
     wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
@@ -52,11 +55,11 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     Bind(wxEVT_MENU, &AppFrame::OnClose, this, APP_CLOSE);
     Bind(wxEVT_CLOSE_WINDOW, &AppFrame::OnWindowClose, this);
     
-    wxMenu* editMenu = txt_ctl->edit_menu();
+    //wxMenu* editMenu = txt_rich->edit_menu();
     
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(fileMenu, _("File"));
-    menuBar->Append(editMenu, _("Edit"));
+    menuBar->Append(txt_rich->edit_menu(), _("Edit"));
     SetMenuBar(menuBar);
 
 #if wxUSE_STATUSBAR
@@ -87,7 +90,7 @@ void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
 
     if (openFileDialog.ShowModal() == wxID_CANCEL) return;
     auto filepath = openFileDialog.GetPath();
-    txt_ctl->load_file(filepath);
+    txt_rich->load_file(filepath);
 }
 
 
@@ -108,8 +111,8 @@ void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
     
     const wxString filePath = fileName.GetFullPath();
 
-    if (fileType == 0) txt_ctl->save_plain_file(filePath);
-    if (fileType == 1) txt_ctl->save_xml_file(filePath);
+    if (fileType == 0) txt_rich->save_plain_file(filePath);
+    if (fileType == 1) txt_rich->save_xml_file(filePath);
 }
 
 

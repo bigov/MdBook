@@ -28,7 +28,7 @@ int count_occurrences(const std::string& text, const std::string& needle)
     return count;
 }
 
-std::string dump_buffer_xml(TxtCtl& ctl)
+std::string dump_buffer_xml(TxtRich& ctl)
 {
     if (!wxRichTextBuffer::FindHandler(wxRICHTEXT_TYPE_XML)) {
         wxRichTextBuffer::AddHandler(new wxRichTextXMLHandler);
@@ -43,7 +43,7 @@ std::string dump_buffer_xml(TxtCtl& ctl)
     return utf8.data() ? std::string(utf8.data()) : std::string();
 }
 
-int run_once(TxtCtl& ctl, const wxString& path)
+int run_once(TxtRich& ctl, const wxString& path)
 {
     ctl.load_file(path);
 
@@ -89,7 +89,7 @@ int main()
     }
 
     wxFrame frame(nullptr, wxID_ANY, "test");
-    TxtCtl ctl(&frame);
+    TxtRich ctl(&frame);
 
     const wxString path = wxString::FromUTF8(TEST_MD_RELOAD_PATH);
     const int bold_count_first = run_once(ctl, path);
