@@ -2,6 +2,7 @@
 #ifndef WX_PRECOMP
     #include "wx/wx.h"
 #endif
+#include "wx/config.h"
 
 #include "app_frame.h"
 
@@ -13,19 +14,24 @@ public:
 
 wxIMPLEMENT_APP(MyApp);
 
+
 bool MyApp::OnInit()
 {
-    if ( !wxApp::OnInit() )
-        return false;
+    if ( !wxApp::OnInit() ) return false;
 
     int screenWidth = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
     int screenHeight = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
-    int win_width = 800;
-    int win_height = 800;
-    int x = screenWidth/2 - win_width/2;
-    int y = screenHeight/2 - win_height/2 - 120;
 
-    AppFrame* frame = new AppFrame("Hyper Markdown Book", x, y, win_width, win_height);
+    wxConfig config("Book", "Hyper-Markdown");
+    // Чтения с указанными значениями по умолчанию
+    int win_width  = (int)config.ReadLong("/MainWindow/Width", 800L);
+    int win_height = (int)config.ReadLong("/MainWindow/Height", 800L);
+
+    int win_x = (int)config.ReadLong("/MainWindow/X", 10L);
+    int win_y = (int)config.ReadLong("/MainWindow/Y", 10L);
+    
+    
+    AppFrame* frame = new AppFrame("Hyper Markdown Book", win_x, win_y, win_width, win_height);
     frame->Show(true);
 
     return true;

@@ -10,10 +10,12 @@ public:
     AppFrame(const wxString& title, int x, int y, int w, int h);
 
     void OnClose(wxCommandEvent& event);
+    void OnWindowClose(wxCloseEvent& event);
     void FileLoad(wxCommandEvent& event);
     void FileSaveAs(wxCommandEvent& event);
 
 private:
     TxtCtl* txt_ctl;
+    void SaveWindowGeometry();
     void SetAppIcon(const wxString& iconPath);
 };

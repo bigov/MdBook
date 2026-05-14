@@ -11,6 +11,7 @@
 #include "wx/panel.h"
 #include "wx/sizer.h"
 #include "wx/stdpaths.h"
+#include "wx/config.h"
 
 static const int APP_CLOSE = 1000;
 static const wxString ASSETS_DIR = "assets";
@@ -49,6 +50,7 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
 
     fileMenu->Append(APP_CLOSE, _("Exit\tCtrl+W"));
     Bind(wxEVT_MENU, &AppFrame::OnClose, this, APP_CLOSE);
+    Bind(wxEVT_CLOSE_WINDOW, &AppFrame::OnWindowClose, this);
     
     wxMenu* editMenu = txt_ctl->edit_menu();
     
@@ -114,4 +116,24 @@ void AppFrame::FileSaveAs(wxCommandEvent& WXUNUSED(event))
 void AppFrame::OnClose(wxCommandEvent& WXUNUSED(event))
 {
     Close(true);
+}
+
+void AppFrame::OnWindowClose(wxCloseEvent& event)
+{
+    SaveWindowGeometry();
+    event.Skip();
+}
+
+void AppFrame::SaveWindowGeometry()
+{
+    wxConfig config("Book", "Hyper-Markdown");
+
+    const wxSize size = GetSize();
+    const wxPoint pos = GetPosition();
+
+    config.Write("/MainWindow/Width", (long)size.GetWidth());
+    config.Write("/MainWindow/Height", (long)size.GetHeight());
+    config.Write("/MainWindow/X", (long)pos.x);
+    config.Write("/MainWindow/Y", (long)pos.y);
+    config.Flush();
 }
