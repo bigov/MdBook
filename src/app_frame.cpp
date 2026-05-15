@@ -11,16 +11,17 @@
 #include "wx/menu.h"
 #include "wx/panel.h"
 #include "wx/sizer.h"
-#include "wx/splitter.h"
 #include "wx/stdpaths.h"
 #include "wx/config.h"
+#include "wx/dirdlg.h"
+#include "wx/dir.h"
 
 static const int APP_CLOSE = 1000;
 static const wxString ASSETS_DIR = "assets";
 static const wxString APP_ICON_FNAME = "icon.png";
 
-AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
-    : wxFrame(nullptr, wxID_ANY, title, wxPoint(x, y), wxSize(w, h))
+AppFrame::AppFrame(const wxString& title)
+    : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL)
 {
     wxInitAllImageHandlers();
     
@@ -31,21 +32,21 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     // Основной контейнер из двух областей: левая навигация и правый редактор.
     // Он отвечает за интерактивный разделитель (sash), который пользователь
     // перетаскивает мышью для изменения относительной ширины панелей.
-    wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition,
+    this->splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition,
                                     wxDefaultSize, wxSP_NO_XP_THEME);
     // Минимальная ширина каждой из двух областей, чтобы панели не схлопывались.
-    splitter->SetMinimumPaneSize(120);
+    this->splitter->SetMinimumPaneSize(120);
     // При изменении размера окна дополнительное место преимущественно получает
     // правая панель (редактор), левая навигация остается более стабильной.
-    splitter->SetSashGravity(0.0);
+    this->splitter->SetSashGravity(0.0);
     // Фон корневого окна синхронизируется с фоном splitter, чтобы боковые поля
     // по краям выглядели тем же цветом, что и область вокруг разделителя.
-    SetBackgroundColour(splitter->GetBackgroundColour());
+    SetBackgroundColour(this->splitter->GetBackgroundColour());
 
     // Правая контейнерная панель редактора с темой-рамкой.
     // Эта рамка задает визуальную границу правой области и отделяет контент
     // от фона splitter, сохраняя единый стиль с левой областью.
-    wxPanel* txt_border_panel = new wxPanel(splitter, wxID_ANY, wxDefaultPosition,
+    wxPanel* txt_border_panel = new wxPanel(this->splitter, wxID_ANY, wxDefaultPosition,
                                             wxDefaultSize, wxBORDER_THEME);
     // Белый фон рабочей области редактора: в пределах этой панели размещается
     // текстовый контент, поэтому цвет фиксируется явно.
@@ -56,12 +57,12 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
 
     // Левая контейнерная панель навигации с такой же светлой theme-рамкой,
     // как у правой панели, чтобы визуально обе стороны выглядели одинаково.
-    wxPanel* nav_border_panel = new wxPanel(splitter, wxID_ANY, wxDefaultPosition,
+    wxPanel* nav_border_panel = new wxPanel(this->splitter, wxID_ANY, wxDefaultPosition,
                                             wxDefaultSize, wxBORDER_THEME);
     // Дерево навигации, вложенное в левую контейнерную панель.
-    nav_panel = new NavPanel(nav_border_panel);
+    nav_panel = new NavPanel(nav_border_panel, txt_rich);
     // Комфортная минимальная ширина панели навигации для читаемости заголовков.
-    nav_panel->SetMinSize(wxSize(220, -1));
+    nav_panel->SetMinSize(wxSize(20, -1));
 
     // Компоновщик правой панели: добавляет внутренние отступы вокруг редактора,
     // чтобы текст не примыкал к рамке и оставался визуально "воздушным".
@@ -76,18 +77,18 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
 
     // Размещение областей в splitter: слева навигация, справа редактор.
     // Третий аргумент задает начальную позицию разделителя по оси X.
-    splitter->SplitVertically(nav_border_panel, txt_border_panel, 260);
+    this->splitter->SplitVertically(nav_border_panel, txt_border_panel);
 
     // Корневой компоновщик фрейма: размещает splitter на все окно, оставляя
     // только боковые внешние поля, без верхнего и нижнего отступа.
     wxBoxSizer* frameSizer = new wxBoxSizer(wxHORIZONTAL);
-    frameSizer->Add(splitter, 1, wxEXPAND | wxLEFT | wxRIGHT, 3);
+    frameSizer->Add(this->splitter, 1, wxEXPAND | wxLEFT | wxRIGHT, 3);
     SetSizer(frameSizer);
 
     wxMenu* fileMenu = new wxMenu;
 
-    fileMenu->Append(wxID_OPEN, _("Open File\tCtrl+O"));
-    Bind(wxEVT_MENU, &AppFrame::FileLoad, this, wxID_OPEN);
+    fileMenu->Append(wxID_OPEN, _("Open Dir\tCtrl+O"));
+    Bind(wxEVT_MENU, &AppFrame::OpenDir, this, wxID_OPEN);
 
     fileMenu->Append(wxID_SAVEAS, _("Save As...\tCtrl+S"));
     Bind(wxEVT_MENU, &AppFrame::FileSaveAs, this, wxID_SAVEAS);
@@ -95,8 +96,6 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
     fileMenu->Append(APP_CLOSE, _("Exit\tCtrl+W"));
     Bind(wxEVT_MENU, &AppFrame::OnClose, this, APP_CLOSE);
     Bind(wxEVT_CLOSE_WINDOW, &AppFrame::OnWindowClose, this);
-    
-    //wxMenu* editMenu = txt_rich->edit_menu();
     
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(fileMenu, _("File"));
@@ -106,6 +105,8 @@ AppFrame::AppFrame(const wxString& title, int x, int y, int w, int h)
 #if wxUSE_STATUSBAR
     CreateStatusBar();
 #endif // wxUSE_STATUSBAR
+
+    load_params();
 }
 
 void AppFrame::SetAppIcon(const wxString& iconPath)
@@ -123,15 +124,14 @@ void AppFrame::SetAppIcon(const wxString& iconPath)
 }
 
 
-void AppFrame::FileLoad(wxCommandEvent& WXUNUSED(event))
+void AppFrame::OpenDir(wxCommandEvent& WXUNUSED(event))
 {
-    wxFileDialog openFileDialog(this, _("Open File"), "", "",
-                                "All files (*.*)|*.*",
-                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-    if (openFileDialog.ShowModal() == wxID_CANCEL) return;
-    auto filepath = openFileDialog.GetPath();
-    txt_rich->load_file(filepath);
+    wxString defaultDir = wxGetHomeDir(); // начальная папка
+    wxDirDialog dlg(this, "Select directory", defaultDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    if (dlg.ShowModal() == wxID_OK) {
+        wxString path = dlg.GetPath();
+        nav_panel->load_directory(path);
+    }
 }
 
 
@@ -164,11 +164,41 @@ void AppFrame::OnClose(wxCommandEvent& WXUNUSED(event))
 
 void AppFrame::OnWindowClose(wxCloseEvent& event)
 {
-    SaveWindowGeometry();
+    save_params();
     event.Skip();
 }
 
-void AppFrame::SaveWindowGeometry()
+void AppFrame::load_params()
+{
+    wxConfig config("Book", "Hyper-Markdown");
+    /* Методы класса wxConfig:  ReadLong, ReadBool, ReadDouble и общего Read для wxString.
+      wxString name;
+      config.Read("/User/Name", &name, "");
+      double volume = config.ReadDouble("/User/Volume", 1.0);
+      bool maximized = config.ReadBool("/MainWindow/Maximized", false);
+     */
+
+    int screenWidth = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
+    int screenHeight = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
+
+    long width = (long)(screenWidth * 0.8); // 80% от ширины экрана
+    long height = (long)(screenHeight * 0.8); // 80% от высоты экрана
+    long x = 10, y = 10, d = 250;
+
+    // Чтение со значениями по умолчанию
+    int win_width  = (int)config.ReadLong("/MainWindow/Width", width);
+    int win_height = (int)config.ReadLong("/MainWindow/Height", height);
+    int win_x = (int)config.ReadLong("/MainWindow/X", x);
+    int win_y = (int)config.ReadLong("/MainWindow/Y", y);
+    int span = (int)config.ReadLong("/MainWindow/span", d);
+
+    this->SetSize(win_x, win_y, win_width, win_height);
+    this->splitter->SetSashPosition(span); // позиция разделителя
+    this->nav_panel->load_directory(config.Read("/MainWindow/current_dir", wxEmptyString));
+    this->txt_rich->load_file(config.Read("/MainWindow/current_file", wxEmptyString));
+}
+
+void AppFrame::save_params()
 {
     wxConfig config("Book", "Hyper-Markdown");
 
@@ -179,5 +209,8 @@ void AppFrame::SaveWindowGeometry()
     config.Write("/MainWindow/Height", (long)size.GetHeight());
     config.Write("/MainWindow/X", (long)pos.x);
     config.Write("/MainWindow/Y", (long)pos.y);
+    config.Write("/MainWindow/span", (long)this->splitter->GetSashPosition());
+    config.Write("/MainWindow/current_dir", this->nav_panel->current_dir);
+    config.Write("/MainWindow/current_file", this->nav_panel->current_file);
     config.Flush();
 }

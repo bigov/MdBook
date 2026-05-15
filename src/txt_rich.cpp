@@ -182,6 +182,8 @@ void TxtRich::push_xml_data(const wxString& content)
 // --- Load files with any formats ---
 void TxtRich::load_file(const wxString filePath)
 {
+    if(filePath.IsEmpty()) return;
+
     auto fileName = wxFileName(filePath);
     wxString fileExt = fileName.GetExt();
     fileExt.LowerCase();
@@ -371,7 +373,7 @@ void TxtRich::md_link() {
     this->node_current = cmark_node_first_child(this->node_current);
     const char *text = cmark_node_get_literal(this->node_current);
     this->BeginURL(url, "style_urls");
-    this->WriteText(text);
+    this->WriteText(wxString::FromUTF8(text));
     this->EndURL();
 }
 void TxtRich::md_image(cmark_node* n) {
