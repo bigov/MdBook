@@ -60,8 +60,9 @@ namespace
 // Конструктор класса TxtCtl
 TxtRich::TxtRich(wxWindow* parent)
     : wxRichTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
-                    wxVSCROLL | wxHSCROLL | wxBORDER_NONE | wxWANTS_CHARS)
+                    wxBORDER_NONE | wxWANTS_CHARS)
 {
+
     m_styleSheet = std::make_unique<wxRichTextStyleSheet>();
     node_current = nullptr;
 
@@ -294,6 +295,7 @@ void TxtRich::md_code_block() {
     box_attr.SetBackgroundColour(style_code.GetBackgroundColour());
     wxTextBoxAttr& tba = box_attr.GetTextBoxAttr();
     tba.GetWidth().SetValue(100, wxTEXT_ATTR_UNITS_PERCENTAGE);
+    tba.GetRightMargin().SetValue(10, wxTEXT_ATTR_UNITS_POINTS);
     tba.GetLeftPadding().SetValue(10, wxTEXT_ATTR_UNITS_POINTS);
     tba.GetRightPadding().SetValue(10, wxTEXT_ATTR_UNITS_POINTS);
 
